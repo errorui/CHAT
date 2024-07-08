@@ -10,6 +10,7 @@ const { notFound, errorHandler } = require('./backend/middleware/errorMiddleware
 const { Socket } = require('socket.io');
 
 dotenv.config();
+let origin="https://chatchat-two.vercel.app"
 const mongoose=require('mongoose')
 mongoose.connect(`${process.env.MONGO_URL}`).then(()=>{
   console.log(
@@ -23,6 +24,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+app.use(cors({
+  origin: origin, // Allow your frontend's origin
+  credentials: true // Allow cookies to be sent
+}));
 
 app.get('/', (req, res) => {
   res.send('API is working');
@@ -35,14 +40,14 @@ app.use('/api/message', messageRoute);
 app.use(notFound);
 app.use(errorHandler);
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "https://chatchat-two.vercel.app");
+  res.header("Access-Control-Allow-Origin", origin);
   res.header("Access-Control-Allow-Credentials", "true");
   res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
   next();
 });
 app.options('*', cors({
-  origin: 'https://chatchat-two.vercel.app',
+  origin:origin,
   credentials: true
 }));
 
@@ -56,7 +61,7 @@ const server = app.listen(
 const io = require('socket.io')(server, {
   pingTimeout: 100000,
   cors: {
-    origin: "https://chatchat-two.vercel.app",
+    origin: origin,
     credentials: true
   },
   maxHttpBufferSize: 1e8 // Increase the buffer size (default is 1MB, this sets it to 100MB)
