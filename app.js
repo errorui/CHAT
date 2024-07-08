@@ -23,10 +23,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-app.use(cors({
-  origin: 'https://chatchat-two.vercel.app', // Allow your frontend's origin
-  credentials: true // Allow cookies to be sent
-}));
 
 app.get('/', (req, res) => {
   res.send('API is working');
