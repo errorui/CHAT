@@ -42,6 +42,7 @@ const registerUser = asyncHandler(async (req, res) => {
 const authUser = asyncHandler(async (req, res) => {
 
   const { email, password } = req.body;
+   console.log("login")
 
   const user = await usermodel.findOne({ email });
 
