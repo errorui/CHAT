@@ -3,10 +3,10 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
 
-const userRoute = require('./routes/userRoute');
-const chatRoutes = require('./routes/chatRoute');
-const messageRoute = require('./routes/messageRoutes');
-const { notFound, errorHandler } = require('./middleware/errorMiddleware');
+const userRoute = require('./backend/routes/userRoute');
+const chatRoutes = require('./backend/routes/chatRoute');
+const messageRoute = require('./backend/routes/messageRoutes');
+const { notFound, errorHandler } = require('./backend/middleware/errorMiddleware');
 const { Socket } = require('socket.io');
 
 dotenv.config();
