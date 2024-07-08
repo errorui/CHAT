@@ -24,10 +24,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-app.use(cors({
-  origin: origin, // Allow your frontend's origin
-  credentials: true // Allow cookies to be sent
-}));
+app.use(cors());
+// app.options('*', cors({
+//   origin:origin,
+//   credentials: true
+// }));
 
 app.get('/', (req, res) => {
   res.send('API is working');
@@ -39,17 +40,17 @@ app.use('/api/message', messageRoute);
 
 app.use(notFound);
 app.use(errorHandler);
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", origin);
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-  next();
-});
-app.options('*', cors({
-  origin:origin,
-  credentials: true
-}));
+// app.use((req, res, next) => {
+//   res.header("Access-Control-Allow-Origin", origin);
+//   res.header("Access-Control-Allow-Credentials", "true");
+//   res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+//   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+//   next();
+// });
+// app.options('*', cors({
+//   origin:origin,
+//   credentials: true
+// }));
 
 const PORT = process.env.PORT || 4000;
 
@@ -64,7 +65,7 @@ const io = require('socket.io')(server, {
     origin: origin,
     credentials: true
   },
-  maxHttpBufferSize: 1e8 // Increase the buffer size (default is 1MB, this sets it to 100MB)
+  maxHttpBufferSize: 1e8 
 });
 
 
