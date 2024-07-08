@@ -24,7 +24,7 @@ import e from 'cors'
 
 
 
-const API_URL = 'http://localhost:5000';
+const API_URL = 'https://chat-12-z8u3.onrender.com';
  const formSchema = z.object({
     email: z.string().min(2, {
       message: "enter login",

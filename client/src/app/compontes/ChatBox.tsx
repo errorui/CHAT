@@ -24,11 +24,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-const EndPoint = 'http://localhost:5000';
+const EndPoint = 'https://chat-12-z8u3.onrender.com';
 let socket: Socket<DefaultEventsMap, DefaultEventsMap> | null = null;
 let selectedChatcompare: Chat;
 
-const API_URL = 'http://localhost:5000';
+const API_URL = 'https://chat-12-z8u3.onrender.com';
 
 const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain: any }) => {
   const [messages, setMessages] = useState<Message[]>([]);

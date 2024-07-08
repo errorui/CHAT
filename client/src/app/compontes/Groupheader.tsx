@@ -17,7 +17,7 @@ import { useRouter } from "next/navigation";
 import UserListItem from './UserListItem';
 import { Label } from '@/components/ui/label';
 
-const API_URL = 'http://localhost:5000';
+const API_URL = 'https://chat-12-z8u3.onrender.com';
 
 import { User, Chat, Message } from '../type';
 

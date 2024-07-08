@@ -23,7 +23,7 @@ import {Chat} from '../type'
 import { getSender } from '../utils/getContact';
 import MakeGroup from './MakeGroup';
 
-const API_URL = 'http://localhost:5000';
+const API_URL = 'https://chat-12-z8u3.onrender.com';
 
 const MyChats = ({fetchAgain}:{
   fetchAgain:any

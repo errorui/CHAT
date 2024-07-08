@@ -65,7 +65,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { ToastAction } from "@radix-ui/react-toast"
 
 import { Chat } from "../type"
-const API_URL = 'http://localhost:5000';
+const API_URL = 'https://chat-12-z8u3.onrender.com';
 
 
 export function Drawer() {

@@ -12,7 +12,7 @@ import SignupForm from "./SignupForm";
 import { useChat } from "@/context/ChatProvider";
 import { usePathname, useRouter } from "next/navigation";
 
-const API_URL = 'http://localhost:5000';
+const API_URL = 'https://chat-12-z8u3.onrender.com';
 const ChatForm = () => {
   let{user}=useChat()
   const pathname = usePathname();

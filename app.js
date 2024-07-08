@@ -24,7 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 app.use(cors({
-  origin: 'http://localhost:3000', // Allow your frontend's origin
+  origin: 'https://chatchat-two.vercel.app', // Allow your frontend's origin
   credentials: true // Allow cookies to be sent
 }));
 
@@ -39,14 +39,14 @@ app.use('/api/message', messageRoute);
 app.use(notFound);
 app.use(errorHandler);
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+  res.header("Access-Control-Allow-Origin", "https://chatchat-two.vercel.app");
   res.header("Access-Control-Allow-Credentials", "true");
   res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
   next();
 });
 app.options('*', cors({
-  origin: 'http://localhost:3000',
+  origin: 'https://chatchat-two.vercel.app',
   credentials: true
 }));
 
@@ -60,7 +60,7 @@ const server = app.listen(
 const io = require('socket.io')(server, {
   pingTimeout: 100000,
   cors: {
-    origin: "http://localhost:3000",
+    origin: "https://chatchat-two.vercel.app/",
     credentials: true
   },
   maxHttpBufferSize: 1e8 // Increase the buffer size (default is 1MB, this sets it to 100MB)

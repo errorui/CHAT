@@ -5,7 +5,7 @@ import React, { createContext, ReactNode, useContext, useEffect, useState } from
 import { useRouter, usePathname } from "next/navigation";
 import { User, Chat, Message } from '../app/type';
 
-const API_URL = 'http://localhost:5000';
+const API_URL = 'https://chat-12-z8u3.onrender.com/';
 
 type ContextType = {
   user: User | null;
