@@ -56,7 +56,7 @@ const server = app.listen(
 const io = require('socket.io')(server, {
   pingTimeout: 100000,
   cors: {
-    origin: "https://chatchat-two.vercel.app/",
+    origin: "https://chatchat-two.vercel.app",
     credentials: true
   },
   maxHttpBufferSize: 1e8 // Increase the buffer size (default is 1MB, this sets it to 100MB)
