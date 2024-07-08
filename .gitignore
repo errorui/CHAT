@@ -1,0 +1,7 @@
+# Ignore node_modules and .env in backend
+backend/node_modules/
+backend/.env
+
+# Ignore node_modules and .env in client
+client/node_modules/
+client/.env
