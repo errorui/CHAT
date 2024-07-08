@@ -4,7 +4,7 @@ const { protect } = require('../middleware/Authmiddleware');
 const upload = require('../config/multer-config');
 const router=express.Router();
 
-router.route('/').post( upload.single('ProfilePic'), registerUser,registerUser).get(protect,allUsers)
+router.route('/').post( upload.single('ProfilePic'), registerUser).get(protect,allUsers)
 router.post("/login", authUser);
 
 router.get('/user',protect,(req,res)=>{
