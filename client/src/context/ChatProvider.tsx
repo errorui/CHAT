@@ -44,6 +44,7 @@ const ChatProvider = ({ children }: { children: ReactNode }) => {
       const res = await getUser();
       if (!res) {
         console.log("No user");
+        console.log(res);
         router.push('/');
       } else {
         console.log("User found");

@@ -34,7 +34,9 @@ const API_URL = 'https://chat-12-z8u3.onrender.com';
 const LoginUser = async (formdata: FormData) => {
     try {
       const response = await axios.post(`${API_URL}/api/user/login`, formdata,{
-
+        headers: {
+          'Content-Type': 'application/json',
+        },
         withCredentials:true
       } );
   
