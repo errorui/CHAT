@@ -28,7 +28,8 @@ const registerUser = asyncHandler(async (req, res) => {
 
   if (user) {
     let token = generateToken(user._id);
-    res.cookie("token", token, { httpOnly: false });
+    res.cookie("token", token, { httpOnly:true,secure:true,
+      sameSite:'none'});
     req.user = user;
     return res.status(200).json({
       user: user,
@@ -48,7 +49,8 @@ const authUser = asyncHandler(async (req, res) => {
 
   if (user && (await user.matchPassword(password))) {
     let token=generateToken(user._id)
-    res.cookie("token",token,{httpOnly:false})
+    res.cookie("token",token,{httpOnly:true,secure:true,
+      sameSite:'none'})
     req.user=user
     res.json({
       _id: user._id,
