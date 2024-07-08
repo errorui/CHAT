@@ -5,7 +5,7 @@
     }
     return users[0]._id===loggedUser._id?users[1]:users[0]
 }
- const isSameSenderMargin = (messages, m, i, userId) => {
+ const isSameSenderMargin = (messages:any, m:any, i:any, userId:any) => {
   
   
     if (
@@ -24,7 +24,7 @@
     else return "auto";
   };
   
- const isSameSender = (messages, m, i, userId) => {
+ const isSameSender = (messages:any, m:any, i:any, userId:any) => {
     return (
       i < messages.length - 1 &&
       (messages[i + 1].sender._id !== m.sender._id ||
@@ -33,7 +33,7 @@
     );
   };
   
-  const isLastMessage = (messages, i, userId) => {
+  const isLastMessage = (messages:any, i:any, userId:any) => {
     return (
       i === messages.length - 1 &&
       messages[messages.length - 1].sender._id !== userId &&
