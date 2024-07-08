@@ -17,11 +17,12 @@ import { Label } from "@/components/ui/label"
 import axios from 'axios';
 import { useChat } from '@/context/ChatProvider'
 import UserListItem from './UserListItem'
+import { User } from '../type'
 const API_URL = 'http://localhost:5000';
 const MakeGroup = () => {
     const [search,setsearch]=useState("")
     const[searchresults,setsearchresults]=useState([]);
-    const [groupUsers,setgroupUsers]=useState([])
+    const [groupUsers,setgroupUsers]=useState<User[]>([])
     const [groupChatName, setGroupChatName] = useState();
     const [open, setOpen] = useState(false);
     const {chats,
