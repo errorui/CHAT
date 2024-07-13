@@ -142,12 +142,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
     setIsDialogOpen(true);
   };
 
-  const handleTalkButtonClick = () => {
-
-   
-      setIsDialogOpen(false); 
-
-  };
+ 
   const getImageSrc = (user: any) => {
     const mimeType = "image/jpeg";
     return `data:${mimeType};base64,${user.ProfilePic}`;

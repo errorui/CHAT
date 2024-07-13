@@ -17,7 +17,7 @@ const page = () => {
   return (
     <div className='w-full h-[100vh]'>
       {user&&<Header></Header>}
-     <Card className='  p-5 flex justify-between w-full '>
+     <Card className='  p-5  justify-between w-full '>
       {user &&<MyChats fetchAgain={fetchAgain}></MyChats>}
       {user &&<ChatBox fetchAgain={fetchAgain} setFetchAgain={setFetchAgain}></ChatBox>}
 
