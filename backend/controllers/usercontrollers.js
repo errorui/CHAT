@@ -30,9 +30,9 @@ const registerUser = asyncHandler(async (req, res) => {
     let token = generateToken(user._id);
     res.cookie("token", token, {
       httpOnly: true,
-      secure: true, // Only send cookie over HTTPS
-      expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // Expires in 2 days
-      sameSite: "none", // Requires HTTPS and ensures cross-site request forgery (CSRF) protection
+      secure: true, 
+      expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+      sameSite: "none", 
     });
 
     req.user = user;

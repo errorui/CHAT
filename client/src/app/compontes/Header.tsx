@@ -79,7 +79,7 @@ const Header = () => {
   return (
     <div className="flex p-3 bg-white shadow-lg items-center justify-between">
         <Drawer></Drawer>
-         <h1 className="text-3xl">talk-</h1>
+         <h1 className="text-3xl">talk-tip</h1>
          <div className="flex gap-2 items-center">
     <DropdownMenu>
   <DropdownMenuTrigger asChild>

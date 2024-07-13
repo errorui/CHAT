@@ -10,7 +10,7 @@ const protect = asyncHandler(async (req, res, next) => {
     // Try to get the token from the cookies
     if (req.cookies && req.cookies.token) {
       token = req.cookies.token;
-      console.log("token")
+     
       
 
     } 
