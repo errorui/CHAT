@@ -26,7 +26,7 @@ const ChatForm = () => {
   })
   
   return (
-    <Tabs defaultValue="sign up" className="md:min-w-[400px]  w-[150px]">
+    <Tabs defaultValue="sign up" className="w-full">
       <TabsList className="grid w-full grid-cols-2 mb-3">
         <TabsTrigger className="uppercase" value="sign up">
           sign up
