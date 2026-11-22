@@ -40,6 +40,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
   const [loading, setLoading] = useState(false);
   const [newMessage, setNewMessage] = useState("");
   const [socketConnected, setSocketConnected] = useState(false);
+  const [connections, setConnections] = useState(0);
   const typingIn = useRef<string | null>(null);
   const typingTimer = useRef<ReturnType<typeof setTimeout>>();
   const [typingChat, setTypingChat] = useState<string | null>(null);
@@ -63,6 +64,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
       setSocketConnected(true);
       // rooms are forgotten on every reconnect
       if (selectedChatcompare) connection.emit("joinchat", selectedChatcompare._id);
+      setConnections((count) => count + 1);
     });
     socket.on('connect_error', () => {
       // socket.io doesn't retry by itself when the server refuses the connection
@@ -110,6 +112,13 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
       socket?.emit("joinchat", selectedChat._id);
     }
   }, [selectedChat?._id]);
+
+  // catch up on whatever was sent while the socket was down
+  useEffect(() => {
+    if (connections < 2) return;
+    fetchMessages();
+    setFetchAgain((value: boolean) => !value);
+  }, [connections]);
 
   const fetchMessages = async () => {
     if (!selectedChat) return;
