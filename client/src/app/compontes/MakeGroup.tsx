@@ -1,5 +1,4 @@
 "use client"
-import { API_URL } from '@/lib/api';
 import React, { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import {
@@ -43,7 +42,7 @@ const MakeGroup = () => {
         }
         try {
           
-         let {data}=  await axios.get(`${API_URL}/api/user?search=${search}`,  { withCredentials: true });
+         let {data}=  await axios.get(`/api/user?search=${search}`,  { withCredentials: true });
          console.log(data)
       
          setsearchresults(data);
@@ -61,7 +60,7 @@ const MakeGroup = () => {
     }
     try {
         const { data } = await axios.post(
-            `${API_URL}/api/chat/group`,
+            `/api/chat/group`,
             {
               name: groupChatName,
               users: JSON.stringify(groupUsers.map((u:any) => u._id)),

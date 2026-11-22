@@ -1,6 +1,5 @@
 "use client"
 
-import { API_URL } from '@/lib/api';
 import React from 'react'
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -32,7 +31,7 @@ import { useRouter } from 'next/navigation'
   });
 const LoginUser = async (formdata: FormData) => {
     try {
-      const response = await axios.post(`${API_URL}/api/user/login`, formdata,{
+      const response = await axios.post(`/api/user/login`, formdata,{
         headers: {
           'Content-Type': 'application/json',
         },

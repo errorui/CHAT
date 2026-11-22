@@ -84,7 +84,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
 
     try {
       setLoading(true);
-      const { data } = await axios.get(`${API_URL}/api/message/${selectedChat._id}`, { withCredentials: true });
+      const { data } = await axios.get(`/api/message/${selectedChat._id}`, { withCredentials: true });
       setMessages(data);
       setLoading(false);
       setLoadingChats(false); // Set loadingChats to false after fetching messages
@@ -101,7 +101,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
       setTyping(false);
       try {
         setNewMessage("");
-        const { data } = await axios.post(`${API_URL}/api/message`, {
+        const { data } = await axios.post(`/api/message`, {
           content: newMessage,
           chatId: selectedChat?._id,
         }, {

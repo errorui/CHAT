@@ -1,4 +1,3 @@
-import { API_URL } from '@/lib/api';
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
@@ -10,7 +9,7 @@ import { Button } from '@/components/ui/button';
 
 const postuser = async (formData: FormData) => {
   try {
-    const response = await axios.post(`${API_URL}/api/user`, formData, {
+    const response = await axios.post(`/api/user`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

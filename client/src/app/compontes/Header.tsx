@@ -1,4 +1,3 @@
-import { API_URL } from '@/lib/api';
 import { useChat } from '@/context/ChatProvider'
 import React from 'react'
 import { Button } from "@/components/ui/button"
@@ -61,7 +60,7 @@ const Header = () => {
     const logout = async () => {
         try {
           
-          await axios.get(`${API_URL}/api/user/logout`,  { withCredentials: true });
+          await axios.get(`/api/user/logout`,  { withCredentials: true });
           toast({
             title: "logout succesfully",
          

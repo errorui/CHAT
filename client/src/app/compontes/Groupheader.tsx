@@ -1,4 +1,3 @@
-import { API_URL } from '@/lib/api';
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import {
@@ -41,7 +40,7 @@ function GroupInfo({ info, fetchAgain, setFetchAgain }: GroupInfoProps) {
       return;
     }
     try {
-      const { data } = await axios.get(`${API_URL}/api/user?search=${search}`, { withCredentials: true });
+      const { data } = await axios.get(`/api/user?search=${search}`, { withCredentials: true });
       console.log(data);
       setSearchResults(data);
     } catch (error) {
@@ -55,7 +54,7 @@ function GroupInfo({ info, fetchAgain, setFetchAgain }: GroupInfoProps) {
       return;
     }
     try {
-      const { data } = await axios.put(`${API_URL}/api/chat/rename`, {
+      const { data } = await axios.put(`/api/chat/rename`, {
         chatId: selectedChat?._id,
         chatName: group,
       }, {
@@ -75,7 +74,7 @@ function GroupInfo({ info, fetchAgain, setFetchAgain }: GroupInfoProps) {
       return;
     }
     try {
-      const { data } = await axios.put(`${API_URL}/api/chat/groupadd`, {
+      const { data } = await axios.put(`/api/chat/groupadd`, {
         chatId: selectedChat?._id,
         userId: user1._id,
       }, {
@@ -90,7 +89,7 @@ function GroupInfo({ info, fetchAgain, setFetchAgain }: GroupInfoProps) {
 
   const handleRemove = async (user1: User) => {
     try {
-      const { data } = await axios.put(`${API_URL}/api/chat/groupremove`, {
+      const { data } = await axios.put(`/api/chat/groupremove`, {
         chatId: selectedChat?._id,
         userId: user1._id,
       }, {

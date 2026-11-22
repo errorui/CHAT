@@ -1,4 +1,3 @@
-import { API_URL } from '@/lib/api';
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -86,7 +85,7 @@ export function Drawer() {
       
         try {
            setloading(true)
-         let {data}=  await axios.get(`${API_URL}/api/user?search=${search}`,  { withCredentials: true });
+         let {data}=  await axios.get(`/api/user?search=${search}`,  { withCredentials: true });
          console.log(data)
          
         //  data as User[]
@@ -104,7 +103,7 @@ export function Drawer() {
    const accessChat=async(userId:string)=>{
     try {
       setloadingChat(true)
-      let {data}=  await axios.post(`${API_URL}/api/chat`,{userId}  ,{ withCredentials: true });
+      let {data}=  await axios.post(`/api/chat`,{userId}  ,{ withCredentials: true });
       console.log(data)
       if(!chats.find((c:any)=>data._id===c._id)){
         setChats([...chats,data])

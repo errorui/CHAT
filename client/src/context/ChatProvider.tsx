@@ -1,6 +1,5 @@
 "use client";
 
-import { API_URL } from '@/lib/api';
 import axios from "axios";
 import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
@@ -30,7 +29,7 @@ const ChatProvider = ({ children }: { children: ReactNode }) => {
 
   const getUser = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/user/user`, {
+      const response = await axios.get(`/api/user/user`, {
         withCredentials: true,
       });
       return response.data as User;

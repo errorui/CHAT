@@ -1,9 +1,8 @@
 
-import { API_URL } from '@/lib/api';
 import axios from "axios";
 const RegistUser = async (formdata: FormData) => {
   try {
-    const response = await axios.post(`${API_URL}/api/user`, formdata,{
+    const response = await axios.post(`/api/user`, formdata,{
       withCredentials:true
     } );
 

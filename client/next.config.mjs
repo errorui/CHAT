@@ -9,6 +9,10 @@ const apiUrl = (
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   env: { NEXT_PUBLIC_API_URL: apiUrl },
+  // serve the api from this site, so the login cookie is first party and not blocked
+  async rewrites() {
+    return [{ source: "/api/:path*", destination: `${apiUrl}/api/:path*` }];
+  },
 };
 
 export default nextConfig;

@@ -1,5 +1,4 @@
 "use client"
-import { API_URL } from '@/lib/api';
 import { ToastAction } from '@/components/ui/toast';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -44,7 +43,7 @@ const MyChats = ({fetchAgain}:{
     const fetchChats=async()=>{
       try {
 
-           let {data}=  await axios.get(`${API_URL}/api/chat`, { withCredentials: true });
+           let {data}=  await axios.get(`/api/chat`, { withCredentials: true });
            
            setChats(data)
       } catch (error) {
