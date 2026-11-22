@@ -35,7 +35,7 @@ const registerUser = asyncHandler(async (req, res) => {
   const userExists = await findUserByEmail(normalizedEmail);
 
   if (userExists) {
-    return res.status(400).json({ err: "user already exists" });
+    return res.status(400).json({ message: "User already exists" });
   }
 
   let user;
@@ -49,7 +49,7 @@ const registerUser = asyncHandler(async (req, res) => {
   } catch (error) {
     // another request registered the same email first
     if (error.code === 11000) {
-      return res.status(400).json({ err: "user already exists" });
+      return res.status(400).json({ message: "User already exists" });
     }
     throw error;
   }
