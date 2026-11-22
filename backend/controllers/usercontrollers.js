@@ -2,6 +2,7 @@ const asyncHandler = require("express-async-handler");
 const usermodel = require("../models/userModel");
 const { generateToken } = require("../config/generateToken");
 const { setAuthCookie } = require("../config/authCookie");
+const { imageType } = require("../config/imageType");
 
 const upload = require("../config/multer-config");
 const userModel = require("../models/userModel");
@@ -22,6 +23,11 @@ const registerUser = asyncHandler(async (req, res) => {
   ) {
     res.status(400);
     throw new Error("Please Enter all the Fields");
+  }
+
+  if (req.file && !imageType(req.file.buffer)) {
+    res.status(400);
+    throw new Error("Profile picture must be a PNG, JPEG, GIF or WebP image");
   }
 
   const normalizedEmail = email.trim().toLowerCase();
