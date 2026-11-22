@@ -112,7 +112,10 @@ const allUsers = asyncHandler(async (req, res) => {
       }
     : {};
 
-  const users = await userModel.find(keyword).find({ _id: { $ne: req.user._id } });
+  const users = await userModel
+    .find(keyword)
+    .find({ _id: { $ne: req.user._id } })
+    .limit(50);
   res.send(users);
 });
 
