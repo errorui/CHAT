@@ -8,3 +8,7 @@ client/.env
 
 .env
 node_modules
+
+# Build output
+.next/
+*.tsbuildinfo
