@@ -1,15 +1,17 @@
 // must match the expiry in generateToken
 const MAX_AGE = 3 * 24 * 60 * 60 * 1000;
 
-const options = {
+// a function, because dotenv has not loaded yet when this file is required
+const options = () => ({
   httpOnly: true,
-  secure: true,
+  // only plain http during local development
+  secure: !(process.env.CLIENT_URL || "").trim().startsWith("http://"),
   sameSite: "lax", // the frontend proxies /api, so this is a first party cookie
-};
+});
 
 const setAuthCookie = (res, token) =>
-  res.cookie("token", token, { ...options, maxAge: MAX_AGE });
+  res.cookie("token", token, { ...options(), maxAge: MAX_AGE });
 
-const clearAuthCookie = (res) => res.clearCookie("token", options);
+const clearAuthCookie = (res) => res.clearCookie("token", options());
 
 module.exports = { setAuthCookie, clearAuthCookie };
