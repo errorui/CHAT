@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -33,17 +33,18 @@ function GroupInfo({ info, fetchAgain, setFetchAgain }: GroupInfoProps) {
   const [group, setGroup] = useState<string>("");
   const [searchResults, setSearchResults] = useState<User[]>([]);
   const [open, setOpen] = useState<boolean>(false);
+  const latestSearch = useRef(0);
 
   const handleSearch = async (query: string) => {
     setSearch(query);
+    const request = ++latestSearch.current;
     if (query === "") {
       setSearchResults([]);
       return;
     }
     try {
       const { data } = await axios.get(`/api/user?search=${encodeURIComponent(query)}`, { withCredentials: true });
-      console.log(data);
-      setSearchResults(data);
+      if (request === latestSearch.current) setSearchResults(data);
     } catch (error) {
       alert("Something went wrong");
     }

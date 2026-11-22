@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -24,6 +24,7 @@ const MakeGroup = () => {
     const [groupUsers,setgroupUsers]=useState<User[]>([])
     const [groupChatName, setGroupChatName] = useState();
     const [open, setOpen] = useState(false);
+    const latestSearch = useRef(0);
     const {chats,
         setChats,user}=useChat()
 
@@ -37,6 +38,7 @@ const MakeGroup = () => {
     }
     const handleSearch=async(query:string)=>{
         setsearch(query)
+        const request=++latestSearch.current
         if(query===""){
             setsearchresults([]);
             return;
@@ -44,9 +46,7 @@ const MakeGroup = () => {
         try {
           
          let {data}=  await axios.get(`/api/user?search=${encodeURIComponent(query)}`,  { withCredentials: true });
-         console.log(data)
-      
-         setsearchresults(data);
+         if(request===latestSearch.current) setsearchresults(data);
            
         } catch (error) {
            alert("something went wrong")
