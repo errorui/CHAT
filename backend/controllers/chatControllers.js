@@ -66,7 +66,7 @@ const fetchChats = asyncHandler(async (req, res) => {
 //@route           POST /api/chat/group
 //@access          Protected
 const createGroupChat = asyncHandler(async (req, res) => {
- if(!req.body.users||!req.body.name){
+ if(!req.body.users||typeof req.body.name!=="string"||!req.body.name.trim()){
   console.log("working1?")
    return res.status(400).send({message:"Please fill all the fields"})
  }
@@ -99,6 +99,10 @@ const createGroupChat = asyncHandler(async (req, res) => {
 const renameGroup = asyncHandler(async (req, res) => {
    const { chatId, chatName } = req.body;
    await getMemberGroup(req, res, chatId);
+   if (typeof chatName !== "string" || !chatName.trim()) {
+     res.status(400);
+     throw new Error("Group name cannot be empty");
+   }
    
    const updatedChat = await chatModel.findByIdAndUpdate(
      chatId,
