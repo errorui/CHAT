@@ -131,15 +131,18 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
     if (event.key === "Enter" && newMessage) {
       socket?.emit("stop typing", selectedChat?._id);
       setTyping(false);
+      const chatId = selectedChat?._id;
       try {
         setNewMessage("");
         const { data } = await axios.post(`/api/message`, {
           content: newMessage,
-          chatId: selectedChat?._id,
+          chatId,
         }, {
           withCredentials: true,
         });
-        setMessages((prevMessages) => appendMessage(prevMessages, data));
+        if (selectedChatcompare?._id === chatId) {
+          setMessages((prevMessages) => appendMessage(prevMessages, data));
+        }
       } catch (error) {
         console.log(error);
       }
