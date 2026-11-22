@@ -1,9 +1,8 @@
+// populate drops deleted accounts from the users array
+const DELETED_USER = { _id: "", name: "Deleted user", email: "" };
+
  function getSender(loggedUser:any,users:any){
-    // return "A"
-    if(users.length<=0){
-        return;
-    }
-    return users[0]._id===loggedUser._id?users[1]:users[0]
+    return users.find((member:any)=>member._id!==loggedUser?._id) ?? DELETED_USER
 }
  const isSameSenderMargin = (messages:any, m:any, i:any, userId:any) => {
   
