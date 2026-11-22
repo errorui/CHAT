@@ -9,9 +9,16 @@ const upload = require("../config/multer-config");
 const { clearAuthCookie } = require("../config/authCookie");
 const router = express.Router();
 
+// a bad upload is the client's mistake, not a server error
+const receiveAvatar = (req, res, next) =>
+  upload.single("ProfilePic")(req, res, (err) => {
+    if (err) res.status(400);
+    next(err);
+  });
+
 router
   .route("/")
-  .post(upload.single("ProfilePic"), registerUser)
+  .post(receiveAvatar, registerUser)
   .get(protect, allUsers);
 router.post("/login", authUser);
 
