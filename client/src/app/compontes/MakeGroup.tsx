@@ -20,7 +20,7 @@ import UserListItem from './UserListItem'
 import { User } from '../type'
 const MakeGroup = () => {
     const [search,setsearch]=useState("")
-    const[searchresults,setsearchresults]=useState([]);
+    const[searchresults,setsearchresults]=useState<User[]>([]);
     const [groupUsers,setgroupUsers]=useState<User[]>([])
     const [groupChatName, setGroupChatName] = useState("");
     const [open, setOpen] = useState(false);
@@ -126,9 +126,9 @@ const MakeGroup = () => {
             
           />
           <div className='mt-6'>
-          {searchresults&&searchresults.map((i)=>[
-            <UserListItem i={i} handlefunction={()=>handleGroup(i)}></UserListItem>
-          ])}
+          {searchresults&&searchresults.map((i)=>(
+            <UserListItem key={i._id} i={i} handlefunction={()=>handleGroup(i)}></UserListItem>
+          ))}
           </div>
          
         </div>
