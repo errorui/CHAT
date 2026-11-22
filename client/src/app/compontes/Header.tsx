@@ -83,7 +83,7 @@ const Header = () => {
   <Button variant={"default"} >
   <FaRegBell />
 </Button>
-{notification.length && <div className=" -top-[9px] right-[25px] absolute text-center p-3 flex items-center justify-center size-5 bg-red-600 text-white rounded-full">{notification.length} </div>
+{notification.length > 0 && <div className=" -top-[9px] right-[25px] absolute text-center p-3 flex items-center justify-center size-5 bg-red-600 text-white rounded-full">{notification.length} </div>
  
  }
 </div>
