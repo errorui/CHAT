@@ -166,6 +166,7 @@ const removeFromGroup = asyncHandler(async (req, res) => {
   }
 
   const isAdminLeaving = !!chat.groupAdmin?.equals(userId);
+  const io = req.app.get("io");
 
   // Remove the user from the chat
   const updatedChat = await chatModel.findByIdAndUpdate(
@@ -182,6 +183,8 @@ const removeFromGroup = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("Chat Not Found");
   } 
+
+  io.in(userId.toLowerCase()).socketsLeave(String(chat._id));
 
   if (updatedChat.users.length === 0) {
 
