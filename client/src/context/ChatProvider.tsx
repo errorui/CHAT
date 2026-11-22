@@ -89,6 +89,10 @@ const ChatProvider = ({ children }: { children: ReactNode }) => {
       if (request !== listRequest.current) return;
       setChats(data);
       setChatsState("ready");
+      // nothing left to open for a chat we were removed from
+      setNotification((list) =>
+        list.filter((item) => !known.has(item.chat._id) || data.some((chat) => chat._id === item.chat._id))
+      );
       // update the open chat, or close it if we were removed from it
       setSelectedChat(
         (open) => open && (data.find((chat) => chat._id === open._id) ?? (known.has(open._id) ? undefined : open))
