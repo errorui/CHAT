@@ -8,7 +8,10 @@ const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
   const ProfilePic = req.file ? req.file.buffer.toString("base64") : null;
 
-  if (!name || !email || !password) {
+  if (
+    [name, email, password].some((value) => typeof value !== "string") ||
+    !name.trim() || !email.trim() || !password
+  ) {
     res.status(400);
     throw new Error("Please Enter all the Fields");
   }
