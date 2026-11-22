@@ -27,7 +27,7 @@ const sendMesage=asyncHandler(async(req,res)=>{
         select:"name ProfilePic email"
     })
     await chatModel.findByIdAndUpdate(req.body.chatId,{
-        lastest:message,
+        lastmessage:message._id,
     })
 
     res.json(message)
