@@ -35,6 +35,17 @@ let selectedChatcompare: Chat | undefined;
 const appendMessage = (list: Message[], message: Message) =>
   list.some((item) => item._id === message._id) ? list : [...list, message];
 
+// For the previous api, which relays what clients emit. The current api ignores these events.
+// Can go once every api instance sends messages itself.
+const relayPayload = (message: Message) => {
+  const person = ({ _id, name, email }: User) => ({ _id, name, email });
+  return {
+    ...message,
+    sender: person(message.sender),
+    chat: { ...message.chat, users: message.chat.users.map(person) },
+  };
+};
+
 const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain: any }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
@@ -63,6 +74,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
     let retry: ReturnType<typeof setTimeout>;
     socket.on('connect', () => {
       setSocketConnected(true);
+      connection.emit("setup", { _id: user._id });
       // rooms are forgotten on every reconnect
       if (selectedChatcompare) connection.emit("joinchat", selectedChatcompare._id);
       setConnections((count) => count + 1);
@@ -160,6 +172,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
         }, {
           withCredentials: true,
         });
+        socket?.emit("message", relayPayload(data));
         if (selectedChatcompare?._id === chatId) {
           setMessages((prevMessages) => appendMessage(prevMessages, data));
         }
