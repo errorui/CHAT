@@ -92,9 +92,9 @@ const Header = () => {
   
       {!notification.length && <h1>No New Messages</h1> }
         {notification.map((notif:any) => (
-                <div
+                <DropdownMenuItem
                   key={notif._id}
-                  onClick={() => {
+                  onSelect={() => {
                     // the notification's copy of the chat has no populated admin
                     setSelectedChat(chats.find((chat) => chat._id === notif.chat._id) ?? notif.chat);
                     setNotification(notification.filter((n) => n !== notif));
@@ -103,7 +103,7 @@ const Header = () => {
                   {notif.chat.isGroupChat
                     ? `New Message in ${notif.chat.chatName}`
                     : `New Message from ${getSender(user, notif.chat.users).name}`}
-              </div>           ))}
+              </DropdownMenuItem>           ))}
 
 
 
