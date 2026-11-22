@@ -51,8 +51,6 @@ const accessChat = asyncHandler(async (req, res) => {
 //@route           GET /api/chat/
 //@access          Protected
 const fetchChats = asyncHandler(async (req, res) => {
- try {
-  
     let data=await chatModel.find({users:{$elemMatch:{$eq:req.user._id}}})
     .populate("users","-password").populate("groupAdmin","-password").populate("lastmessage").sort({updateAt:-1})
     data=await usermodel.populate(data,{
@@ -61,9 +59,6 @@ const fetchChats = asyncHandler(async (req, res) => {
      })
   
     res.send(data);
- } catch (error) {
-    res.send(error.message)
- }
 });
 
 //@description     Create New Group Chat
