@@ -130,16 +130,16 @@ const renameGroup = asyncHandler(async (req, res) => {
 const removeFromGroup = asyncHandler(async (req, res) => {
   const { chatId, userId } = req.body;
 
-  // Find the chat first to get current users and admin
-  const chat = await chatModel.findById(chatId);
+  requireId(res, userId, "user id");
+  const chat = await getMemberGroup(req, res, chatId);
 
-  if (!chat) {
-    res.status(404);
-    throw new Error("Chat Not Found");
+  // anyone can leave, only the admin can remove somebody else
+  if (!req.user._id.equals(userId) && !chat.groupAdmin?.equals(req.user._id)) {
+    res.status(403);
+    throw new Error("Only the group admin can do that");
   }
 
-  // Check if the requester is admin
-  const isAdminLeaving = chat.groupAdmin.equals(userId);
+  const isAdminLeaving = !!chat.groupAdmin?.equals(userId);
 
   // Remove the user from the chat
   const updatedChat = await chatModel.findByIdAndUpdate(
