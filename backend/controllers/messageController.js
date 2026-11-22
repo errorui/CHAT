@@ -19,7 +19,6 @@ const sendMesage=asyncHandler(async(req,res)=>{
     content:content,
     chat:chatId
    }
-   try {
     let message=await messageModel.create(newMessage);
     message=await message.populate("sender","name pic")
     message=await message.populate("chat")
@@ -32,9 +31,6 @@ const sendMesage=asyncHandler(async(req,res)=>{
     })
 
     res.json(message)
-   } catch (error) {
-     return res.status(400).send(error.message)
-   }
 
 })
 const allMessages=asyncHandler(async(req,res)=>{
