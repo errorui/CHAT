@@ -73,8 +73,9 @@ const SignupForm = () => {
 
     const result = await postuser(formData);
 
-    if (result === "User already exists") {
-      alert("User already exists. Try different email.");
+    // every failure comes back as a string
+    if (typeof result === "string") {
+      alert(result);
     } else {
       alert("User created successfully!");
       router.push('/chats');
