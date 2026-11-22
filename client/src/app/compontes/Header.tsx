@@ -90,7 +90,7 @@ const Header = () => {
   </DropdownMenuTrigger>
   <DropdownMenuContent >
   
-      {!notification.length && <h1>  "No New Messages"</h1> }
+      {!notification.length && <h1>No New Messages</h1> }
         {notification.map((notif:any) => (
                 <div
                   key={notif._id}
