@@ -91,11 +91,13 @@ io.on("connection", (socket) => {
   console.log("connected");
 
   socket.on('setup', (userData) => {
+    if (typeof userData?._id !== "string") return;
     socket.join(userData._id);
     socket.emit("connected");
   });
 
   socket.on('joinchat', (room) => {
+    if (typeof room !== "string") return;
     socket.join(room);
     console.log("user joined the room " + room);
   });
@@ -109,11 +111,11 @@ io.on("connection", (socket) => {
   });
 
   socket.on("message", (newMessageReceived) => {
-    var chat = newMessageReceived.chat;
-    if (!chat.users) return console.log("chat.users not defined");
+    var chat = newMessageReceived?.chat;
+    if (!Array.isArray(chat?.users)) return console.log("chat.users not defined");
 
     chat.users.forEach((user) => {
-      if (user._id === newMessageReceived.sender._id) return;
+      if (typeof user?._id !== "string" || user._id === newMessageReceived.sender?._id) return;
       socket.in(user._id).emit("message received", newMessageReceived);
     });
   });
