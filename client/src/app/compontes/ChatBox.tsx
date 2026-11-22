@@ -27,7 +27,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 let socket: Socket<DefaultEventsMap, DefaultEventsMap> | null = null;
-let selectedChatcompare: Chat;
+let selectedChatcompare: Chat | undefined;
 
 
 // a sent message arrives twice: in the http response and over the socket
@@ -97,9 +97,9 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
   }, [user?._id]);
 
   useEffect(() => {
+    selectedChatcompare = selectedChat;
     if (selectedChat) {
       fetchMessages();
-      selectedChatcompare = selectedChat;
       socket?.emit("joinchat", selectedChat._id);
     }
   }, [selectedChat]);
