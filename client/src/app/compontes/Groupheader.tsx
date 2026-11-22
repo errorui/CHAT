@@ -133,12 +133,12 @@ function GroupInfo({ info, fetchAgain, setFetchAgain }: GroupInfoProps) {
               }}>Submit</Button>
             </div>
             <div>
-              {user?.name === info.groupAdmin.name ? (
+              {user?._id === info.groupAdmin?._id ? (
                 <div>
                   <h1>Hi group admin</h1>
                   {info.users.map((e: User) => (
                     <Badge onClick={() => handleRemove(e)} key={e._id}>
-                      {e.name}{e.name === info.groupAdmin.name ? ':admin' : null}
+                      {e.name}{e._id === info.groupAdmin?._id ? ':admin' : null}
                     </Badge>
                   ))}
                   <div>
@@ -162,7 +162,7 @@ function GroupInfo({ info, fetchAgain, setFetchAgain }: GroupInfoProps) {
               ) : (
                 info.users.map((e: User) => (
                   <Badge key={e._id}>
-                    {e.name}{e.name === info.groupAdmin.name ? ':admin' : null}
+                    {e.name}{e._id === info.groupAdmin?._id ? ':admin' : null}
                   </Badge>
                 ))
               )}
