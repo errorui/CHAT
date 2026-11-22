@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useChat } from "@/context/ChatProvider";
+import { useWakingUp } from "@/hooks/useWakingUp";
 import { cn } from "@/lib/utils";
 import ChatBox from "../compontes/ChatBox";
 import { ConnectionBanner } from "../compontes/ConnectionBanner";
@@ -10,14 +11,15 @@ import { Logo } from "../compontes/Logo";
 import MyChats from "../compontes/MyChats";
 
 const ChatsPage = () => {
-  const { user, session, selectedChat } = useChat();
+  const { user, selectedChat } = useChat();
+  const wakingUp = useWakingUp();
 
   if (!user) {
     return (
       <main className="flex h-dvh flex-col items-center justify-center gap-4 px-6 text-center">
         <Logo className="animate-pulse text-2xl" />
         <p role="status" className="max-w-xs text-sm text-muted-foreground">
-          {session === "unreachable"
+          {wakingUp
             ? "Waking the server up. This can take up to a minute, and this page will carry on by itself."
             : "Loading your chats…"}
         </p>

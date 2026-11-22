@@ -4,11 +4,13 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useChat } from "@/context/ChatProvider";
+import { useWakingUp } from "@/hooks/useWakingUp";
 import LoginForm from "./loginForm";
 import SignupForm from "./SignupForm";
 
 const ChatForm = () => {
-  const { user, session } = useChat();
+  const { user } = useChat();
+  const wakingUp = useWakingUp();
   const router = useRouter();
   const [tab, setTab] = useState("login");
 
@@ -27,7 +29,7 @@ const ChatForm = () => {
         </p>
       </div>
 
-      {session === "unreachable" && (
+      {wakingUp && (
         <p role="status" className="rounded-xl bg-accent px-4 py-3 text-sm text-accent-foreground">
           Waking the server up. The first request can take up to a minute.
         </p>
