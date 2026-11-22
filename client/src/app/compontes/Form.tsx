@@ -18,11 +18,10 @@ const ChatForm = () => {
   const router = useRouter();
 
   useEffect(()=>{
-    console.log('hi')
     if(user){
       router.push('/chats')
     }
-  })
+  },[user, router])
   
   return (
     <Tabs defaultValue="sign up" className="w-full">
