@@ -6,7 +6,7 @@ const upload = require("../config/multer-config");
 const userModel = require("../models/userModel");
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
-  const ProfilePic = req.file ? req.file.buffer.toString("base64") : null;
+  const ProfilePic = req.file ? req.file.buffer.toString("base64") : undefined;
 
   if (
     [name, email, password].some((value) => typeof value !== "string") ||
