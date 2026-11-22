@@ -14,6 +14,10 @@ const accessChat = asyncHandler(async (req, res) => {
        res.status(400);
        throw new Error("You cannot chat with yourself");
      }
+     if (!(await usermodel.exists({ _id: userId }))) {
+       res.status(404);
+       throw new Error("User Not Found");
+     }
      var isChat=await chatModel.find({
         isGroupChat:false,
         $and:[
