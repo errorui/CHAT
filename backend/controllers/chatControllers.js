@@ -9,10 +9,7 @@ const { requireId, getMemberGroup, getAdminGroup } = require("../utils/chatAcces
 const accessChat = asyncHandler(async (req, res) => {
      const {userId}=req.body
     
-     if(!userId){
-        console.log("user id paraeam not sent with request")
-        return res.sendStatus(400);
-     }
+     requireId(res, userId, "user id");
      var isChat=await chatModel.find({
         isGroupChat:false,
         $and:[
