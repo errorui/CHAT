@@ -4,6 +4,8 @@ const { generateToken } = require("../config/generateToken");
 
 const upload = require("../config/multer-config");
 const userModel = require("../models/userModel");
+const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\/]/g, "\\$&");
+
 // exact match first, then ignore case for accounts saved with capitals
 const findUserByEmail = async (email) =>
   (await userModel.findOne({ email })) ||
@@ -100,11 +102,12 @@ const authUser = asyncHandler(async (req, res) => {
 });
 
 const allUsers = asyncHandler(async (req, res) => {
-  const keyword = req.query.search
+  const search = req.query.search;
+  const keyword = search
     ? {
         $or: [
-          { name: { $regex: req.query.search, $options: "i" } },
-          { email: { $regex: req.query.search, $options: "i" } },
+          { name: { $regex: escapeRegex(search), $options: "i" } },
+          { email: { $regex: escapeRegex(search), $options: "i" } },
         ],
       }
     : {};
