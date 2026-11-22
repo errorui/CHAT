@@ -1,5 +1,7 @@
 const { Server } = require("socket.io");
 const jwt = require("jsonwebtoken");
+const chatModel = require("./models/chatModel");
+const { isValidId } = require("./utils/chatAccess");
 
 const createSocketServer = (server, origin) => {
   const io = new Server(server, {
@@ -23,9 +25,14 @@ const createSocketServer = (server, origin) => {
     // the room comes from the verified token, never from what the client says
     socket.join(socket.data.userId);
 
-    socket.on("joinchat", (room) => {
-      if (typeof room !== "string") return;
-      socket.join(room);
+    socket.on("joinchat", async (room) => {
+      try {
+        if (!isValidId(room)) return;
+        if (await chatModel.exists({ _id: room, users: socket.data.userId })) socket.join(room);
+      } catch (error) {
+        // nothing awaits this handler, a rejection here would kill the process
+        console.error("joinchat failed:", error.message);
+      }
     });
 
     socket.on("typing", (room) => {
