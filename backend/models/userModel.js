@@ -16,7 +16,14 @@ const userSchema=mongoose.Schema({
       default: false,
     },
 },{
-  timestamps:true
+  timestamps:true,
+  toJSON: {
+    // never send the password hash to clients
+    transform(doc, ret) {
+      delete ret.password;
+      return ret;
+    },
+  },
 })
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
