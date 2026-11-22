@@ -17,6 +17,7 @@ import { chatTitle } from "@/lib/chat";
 import { errorMessage } from "@/lib/errors";
 import { Logo } from "./Logo";
 import ProfileModal from "./ProfileModal";
+import { ThemeMenuItem } from "./ThemeMenuItem";
 import { UserAvatar } from "./UserAvatar";
 import { Chat, Message } from "../type";
 
@@ -120,6 +121,7 @@ const Header = () => {
               <LuUser aria-hidden />
               Profile
             </DropdownMenuItem>
+            <ThemeMenuItem />
             <DropdownMenuItem onSelect={logout} className="gap-2 py-2 text-destructive focus:text-destructive">
               <LuLogOut aria-hidden />
               Sign out
