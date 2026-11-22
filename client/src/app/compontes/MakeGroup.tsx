@@ -22,7 +22,7 @@ const MakeGroup = () => {
     const [search,setsearch]=useState("")
     const[searchresults,setsearchresults]=useState([]);
     const [groupUsers,setgroupUsers]=useState<User[]>([])
-    const [groupChatName, setGroupChatName] = useState();
+    const [groupChatName, setGroupChatName] = useState("");
     const [open, setOpen] = useState(false);
     const latestSearch = useRef(0);
     const {chats,
@@ -56,8 +56,9 @@ const MakeGroup = () => {
      setgroupUsers(groupUsers.filter((s:any)=>s._id !==deluser._id))
    }
    const handleSubmit=async()=>{
-    if(!groupChatName||!groupUsers){
-        alert("please fill all the fields")
+    if(!groupChatName.trim()||groupUsers.length<2){
+        alert("Enter a name and pick at least 2 people")
+        return;
     }
     try {
         const { data } = await axios.post(
