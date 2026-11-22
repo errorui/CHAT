@@ -10,7 +10,11 @@ const { notFound, errorHandler } = require('./backend/middleware/errorMiddleware
 const { Socket } = require('socket.io');
 
 dotenv.config();
-let origin="https://chatchat-two.vercel.app"
+// comma separated list of frontends allowed to use the api
+const origin = (process.env.CLIENT_URL || "https://chatchat-two.vercel.app")
+  .split(",")
+  .map((url) => url.trim().replace(/\/+$/, ""))
+  .filter(Boolean);
 const mongoose=require('mongoose')
 mongoose.connect(`${process.env.MONGO_URL}`).then(()=>{
   console.log(
