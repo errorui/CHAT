@@ -224,10 +224,10 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
             <div className="p-5 h-[100%] overflow-y-scroll flex flex-col">
               {messages && messages.map((message: Message, index) => {
                 const shouldDisplaySender = isSameSender(messages, message, index, user?._id) || isLastMessage(messages, index, user?._id);
-                const isSentByUser = message.sender._id === user?._id;
+                const isSentByUser = message.sender?._id === user?._id;
                 return (
                   <div key={index} className={`my-[1px] flex ${isSentByUser ? 'justify-end' : 'justify-start'}`}>
-                    {shouldDisplaySender && (
+                    {shouldDisplaySender && message.sender && (
                     <Dialog  >
                     <DialogTrigger asChild>
                       <Avatar onClick={() => handleAvatarClick(message.sender)}>
