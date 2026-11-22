@@ -1,170 +1,98 @@
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+"use client";
+
+import React, { useRef, useState } from "react";
+import { LuMessageSquarePlus } from "react-icons/lu";
+import { Button } from "@/components/ui/button";
 import {
   Sheet,
-  SheetClose,
   SheetContent,
   SheetDescription,
-  SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-  SheetOverlay
-} from "@/components/ui/sheet"
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-  } from "@/components/ui/tooltip"
-  import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-  } from "@/components/ui/dropdown-menu"
-  import {
-    Avatar,
-    AvatarFallback,
-    AvatarImage,
-  } from "@/components/ui/avatar"
-  import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-    DialogFooter,
-    DialogClose
-  } from "@/components/ui/dialog"
+} from "@/components/ui/sheet";
+import { useToast } from "@/components/ui/use-toast";
+import { useChat } from "@/context/ChatProvider";
+import { useUserSearch } from "@/hooks/useUserSearch";
+import { focusComposer } from "@/lib/chat";
+import { errorMessage } from "@/lib/errors";
+import { SearchField } from "./SearchField";
+import UserListItem from "./UserListItem";
+import { UserSearchResults } from "./UserSearchResults";
 
-  
-import { useState } from "react"
-import { CiSearch } from "react-icons/ci";
-import { FaRegBell,FaAngleDown,FaRegUser  } from "react-icons/fa";
-import { useChat } from "@/context/ChatProvider"
-import axios from 'axios';
+/** The "new chat" panel. */
+export function Drawer({ children }: { children?: React.ReactNode }) {
+  const { openDirectChat } = useChat();
+  const { toast } = useToast();
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [opening, setOpening] = useState<string>();
+  const openedChat = useRef(false);
+  const { results, state } = useUserSearch(query, open);
 
-type User= {
-    _id: string;
-    name: string;
-    email: string;
+  const changeOpen = (next: boolean) => {
+    setOpen(next);
+    if (!next) setQuery("");
+  };
 
-    isAdmin: boolean;
-    createdAt: string;
-    updatedAt: string;
-  }
-
-import { Card } from "@/components/ui/card"
-import UserListItem from "./UserListItem"
-import { useToast } from "@/components/ui/use-toast"
-import { ToastAction } from "@radix-ui/react-toast"
-
-import { Chat } from "../type"
-
-
-export function Drawer() {
-  const {
-    setSelectedChat,
-    user,
-    notification,
-    setNotification,
-    chats,
-    setChats,
-  } = useChat();
-  const { toast } = useToast()
-    const [search,setsearch]=useState("")
-    const [searchresults,setsearchresults]=useState<User[]>([])
-    let [loading,setloading]=useState(false)
-    let [loadingChat,setloadingChat]=useState(false)
-    const handleSearch=async()=>{
-      
-        try {
-           setloading(true)
-         let {data}=  await axios.get(`/api/user?search=${encodeURIComponent(search)}`,  { withCredentials: true });
-        //  data as User[]
-         setsearchresults(data);
-        } catch (error) {
-          toast({
-            variant: "destructive",
-            title: "Search failed. Please try again.",
-          })
-        } finally {
-          setloading(false);
-        }
-   }
-   const accessChat=async(userId:string)=>{
+  const start = async (userId: string) => {
+    setOpening(userId);
     try {
-      setloadingChat(true)
-      let {data}=  await axios.post(`/api/chat`,{userId}  ,{ withCredentials: true });
-      if(!chats.find((c:any)=>data._id===c._id)){
-        setChats([...chats,data])
-      }
-      setSelectedChat(data)
+      await openDirectChat(userId);
+      openedChat.current = true;
+      changeOpen(false);
     } catch (error) {
-      toast({ variant: "destructive", title: "Could not open the chat" })
+      toast({ variant: "destructive", title: "Could not open the chat", description: errorMessage(error) });
     } finally {
-      setloadingChat(false)
+      setOpening(undefined);
     }
-   }
+  };
+
   return (
-   
-          <Sheet  >
-         <TooltipProvider>
-         <Tooltip>
-         <TooltipTrigger asChild>
-            <SheetTrigger asChild>
-
-        <Button variant="default" className="flex items-center justify-center"><CiSearch className="mr-2" />Open</Button>
+    <Sheet open={open} onOpenChange={changeOpen}>
+      <SheetTrigger asChild>
+        {children ?? (
+          <Button className="gap-2">
+            <LuMessageSquarePlus aria-hidden />
+            New chat
+          </Button>
+        )}
       </SheetTrigger>
-      </TooltipTrigger>
-      <TooltipContent>
-          <p>search chats</p>
-        </TooltipContent>
-      </Tooltip>
-      </TooltipProvider>
-      
-      <SheetContent side="left" >
-        
-        <SheetHeader>
-          <SheetTitle>search user</SheetTitle>
-        
-        </SheetHeader>
-        <div className="flex gap-3">
-        <div>
-        <Input value={search} onChange={(e)=>setsearch(e.target.value)}  placeholder="serach user"></Input>
-       </div>
-        <SheetFooter>
-          
-            <Button onClick={handleSearch}>Search</Button>
-         
-        </SheetFooter>
-
+      <SheetContent
+        side="left"
+        className="flex w-full flex-col gap-0 p-0 sm:max-w-sm"
+        onCloseAutoFocus={(event) => {
+          if (!openedChat.current) return;
+          openedChat.current = false;
+          event.preventDefault();
+          focusComposer();
+        }}
+      >
+        <div className="space-y-4 border-b p-5">
+          <SheetHeader className="pr-8 text-left">
+            <SheetTitle className="font-display text-2xl">New chat</SheetTitle>
+            <SheetDescription>Find someone by name or email.</SheetDescription>
+          </SheetHeader>
+          <SearchField
+            label="Search people"
+            placeholder="Search people"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+          />
         </div>
-        <div className="mt-8 ">
-        {loadingChat&&<h1 className="text-3xl">loading</h1>}
-          {
-            loading?<h1>loading</h1>:
-            searchresults&&(
-                searchresults.map((i:User,index)=>{
-                    return (
-                       <UserListItem key={i._id} i={i} handlefunction={()=>accessChat(i._id)}></UserListItem>
-                    )
-                })
-            )
-            }
-          
-            </div>
-         
+        <div className="min-h-0 flex-1 overflow-y-auto p-2.5">
+          <UserSearchResults state={state} results={results}>
+            {(person) => (
+              <UserListItem
+                i={person}
+                disabled={!!opening}
+                handlefunction={() => start(person._id)}
+                trailing={opening === person._id && <span className="text-xs text-muted-foreground">Opening…</span>}
+              />
+            )}
+          </UserSearchResults>
+        </div>
       </SheetContent>
     </Sheet>
-   
-  
-
-  
-  )
+  );
 }
