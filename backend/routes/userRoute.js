@@ -7,7 +7,7 @@ const {
   getAvatar,
 } = require("../controllers/usercontrollers");
 const { protect } = require("../middleware/Authmiddleware");
-const { updateName, updatePhoto, removePhoto, updateEmail } = require("../controllers/profileController");
+const { updateName, updatePhoto, removePhoto, updateEmail, updatePassword } = require("../controllers/profileController");
 const upload = require("../config/multer-config");
 const { clearAuthCookie } = require("../config/authCookie");
 const { limitLoginPerClient, limitLoginPerAccount, limitPasswordChecks } = require("../middleware/loginLimiter");
@@ -34,6 +34,7 @@ router.patch("/user", protect, updateName);
 router.put("/user/avatar", protect, receiveAvatar, updatePhoto);
 router.delete("/user/avatar", protect, removePhoto);
 router.put("/user/email", protect, limitPasswordChecks, updateEmail);
+router.put("/user/password", protect, limitPasswordChecks, updatePassword);
 router.get("/socket-token", protect, (req, res) => {
   res.json({ token: generateSocketToken(req.user._id) });
 });

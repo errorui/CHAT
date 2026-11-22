@@ -104,4 +104,17 @@ const updateEmail = asyncHandler(async (req, res) => {
   res.json(user);
 });
 
-module.exports = { updateName, updatePhoto, removePhoto, updateEmail };
+const updatePassword = asyncHandler(async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  if (typeof newPassword !== "string" || !newPassword) {
+    res.status(400);
+    throw new Error("Choose a new password");
+  }
+
+  const user = await confirmPassword(req, res, currentPassword);
+  user.password = newPassword; // hashed by the pre save hook
+  await user.save();
+  res.json({ message: "Password changed" });
+});
+
+module.exports = { updateName, updatePhoto, removePhoto, updateEmail, updatePassword };
