@@ -16,6 +16,7 @@ type ContextType = {
   user: User | null;
   session: SessionState;
   signOut: () => Promise<void>;
+  sessionChanged: () => void;
   selectedChat: Chat | undefined;
   setSelectedChat: React.Dispatch<React.SetStateAction<Chat | undefined>>;
   chats: Chat[];
@@ -119,12 +120,27 @@ const ChatProvider = ({ children }: { children: ReactNode }) => {
     [refreshChats]
   );
 
+  // the cookie is shared by every tab, so the others have to follow
+  const tabs = useRef<BroadcastChannel | null>(null);
+  useEffect(() => {
+    if (typeof BroadcastChannel === "undefined") return;
+    const channel = new BroadcastChannel("talk-tip-session");
+    channel.onmessage = () => window.location.reload();
+    tabs.current = channel;
+    return () => {
+      channel.close();
+      tabs.current = null;
+    };
+  }, []);
+  const sessionChanged = useCallback(() => tabs.current?.postMessage("changed"), []);
+
   const signOut = useCallback(async () => {
     await axios.get("/api/user/logout");
+    sessionChanged();
     clearSession();
     setSession("signed-out");
     router.replace("/");
-  }, [clearSession, router]);
+  }, [clearSession, router, sessionChanged]);
 
   // the login expired while the app was open
   useEffect(() => {
@@ -234,6 +250,7 @@ const ChatProvider = ({ children }: { children: ReactNode }) => {
         user,
         session,
         signOut,
+        sessionChanged,
         selectedChat,
         setSelectedChat,
         chats,

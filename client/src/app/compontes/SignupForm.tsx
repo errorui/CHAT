@@ -7,6 +7,7 @@ import { LuCamera } from "react-icons/lu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useChat } from "@/context/ChatProvider";
 import { errorMessage } from "@/lib/errors";
 import { toAvatarFile } from "@/lib/resizeImage";
 import { PasswordInput } from "./PasswordInput";
@@ -34,6 +35,7 @@ function FieldError({ id, message }: { id: string; message?: string }) {
 
 const SignupForm = () => {
   const router = useRouter();
+  const { sessionChanged } = useChat();
   const form = useRef<HTMLFormElement>(null);
   const picker = useRef<HTMLInputElement>(null);
   const [values, setValues] = useState<Fields>({ name: "", email: "", password: "", confirmpassword: "" });
@@ -89,6 +91,7 @@ const SignupForm = () => {
       if (photo) body.append("ProfilePic", await toAvatarFile(photo));
 
       await axios.post("/api/user", body);
+      sessionChanged();
       router.replace("/chats");
     } catch (error) {
       setFailure(errorMessage(error, "Could not create the account. Please try again."));

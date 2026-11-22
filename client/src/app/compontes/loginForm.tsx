@@ -9,6 +9,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useChat } from "@/context/ChatProvider";
 import { errorMessage } from "@/lib/errors";
 import { PasswordInput } from "./PasswordInput";
 
@@ -20,6 +21,7 @@ const formSchema = z.object({
 
 const LoginForm = () => {
   const router = useRouter();
+  const { sessionChanged } = useChat();
   const [failure, setFailure] = useState<string>();
   const [done, setDone] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
@@ -32,6 +34,7 @@ const LoginForm = () => {
     try {
       await axios.post("/api/user/login", values);
       setDone(true);
+      sessionChanged();
       router.replace("/chats");
     } catch (error) {
       setFailure(
