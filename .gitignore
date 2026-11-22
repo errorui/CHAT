@@ -7,6 +7,8 @@ client/node_modules/
 client/.env
 
 .env
+.env.*
+!.env.example
 node_modules
 
 # Build output
