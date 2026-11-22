@@ -95,7 +95,8 @@ const Header = () => {
                 <div
                   key={notif._id}
                   onClick={() => {
-                    setSelectedChat(notif.chat);
+                    // the notification's copy of the chat has no populated admin
+                    setSelectedChat(chats.find((chat) => chat._id === notif.chat._id) ?? notif.chat);
                     setNotification(notification.filter((n) => n !== notif));
                   }}
                 >
