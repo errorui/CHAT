@@ -79,7 +79,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
         if (newMessageReceived.sender?._id !== user._id) {
           setNotification((prevNotifications) => [...prevNotifications, newMessageReceived]);
         }
-        setFetchAgain(!fetchAgain);
+        setFetchAgain((value: boolean) => !value);
         return;
       };
       setMessages((prevMessages) => appendMessage(prevMessages, newMessageReceived));
