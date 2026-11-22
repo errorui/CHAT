@@ -41,6 +41,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
   const [newMessage, setNewMessage] = useState("");
   const [socketConnected, setSocketConnected] = useState(false);
   const [connections, setConnections] = useState(0);
+  const scroller = useRef<HTMLDivElement>(null);
   const typingIn = useRef<string | null>(null);
   const typingTimer = useRef<ReturnType<typeof setTimeout>>();
   const [typingChat, setTypingChat] = useState<string | null>(null);
@@ -112,6 +113,11 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
       socket?.emit("joinchat", selectedChat._id);
     }
   }, [selectedChat?._id]);
+
+  useEffect(() => {
+    const list = scroller.current;
+    if (list) list.scrollTop = list.scrollHeight;
+  }, [messages, loadingChats]);
 
   // catch up on whatever was sent while the socket was down
   useEffect(() => {
@@ -221,7 +227,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
           </div>
         ) : (
           <>
-            <div className="p-5 h-[100%] overflow-y-scroll flex flex-col">
+            <div ref={scroller} className="p-5 h-[100%] overflow-y-scroll flex flex-col">
               {messages && messages.map((message: Message, index) => {
                 const shouldDisplaySender = isSameSender(messages, message, index, user?._id) || isLastMessage(messages, index, user?._id);
                 const isSentByUser = message.sender?._id === user?._id;
