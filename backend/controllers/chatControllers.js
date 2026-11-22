@@ -48,7 +48,6 @@ const accessChat = asyncHandler(async (req, res) => {
             users:[req.user._id,userId],
             directKey:[String(req.user._id),userId.toLowerCase()].sort().join(":"),
         }
-        try {
             const createdchat=await chatModel.create(chatData).catch((error)=>{
               if(error.code!==11000) throw error;
               // a simultaneous request created it first
@@ -56,10 +55,6 @@ const accessChat = asyncHandler(async (req, res) => {
             })
             const FullChat=await chatModel.findOne({_id:createdchat._id}).populate("users","-password");
             res.status(200).send(FullChat);
-        } catch (error) {
-            res.status(400);
-            throw new Error(error.message)
-        }
      }
 });
 
@@ -106,8 +101,6 @@ const createGroupChat = asyncHandler(async (req, res) => {
    return res.status(400).send({message:"Some of those users do not exist"})
  }
  users.push(req.user)
- try {
-   
    const groupChat=await chatModel.create({
       chatName:req.body.name,
       users:users,
@@ -118,9 +111,6 @@ const createGroupChat = asyncHandler(async (req, res) => {
    .populate("users","-password").populate("groupAdmin","-password");
    notifyMembers(req, fullgroupChat._id, fullgroupChat.users.map((user) => user._id));
    res.status(200).json(fullgroupChat)
- } catch (error) {
-    res.status(400).json(error.message)
- }
   
 });
 
