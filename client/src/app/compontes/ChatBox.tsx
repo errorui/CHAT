@@ -98,22 +98,29 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
 
   useEffect(() => {
     selectedChatcompare = selectedChat;
+    setMessages([]);
     if (selectedChat) {
+      setLoadingChats(true);
       fetchMessages();
       socket?.emit("joinchat", selectedChat._id);
     }
-  }, [selectedChat]);
+  }, [selectedChat?._id]);
 
   const fetchMessages = async () => {
     if (!selectedChat) return;
+    const chatId = selectedChat._id;
 
     try {
       setLoading(true);
-      const { data } = await axios.get(`/api/message/${selectedChat._id}`, { withCredentials: true });
-      setMessages(data);
+      const { data } = await axios.get(`/api/message/${chatId}`, { withCredentials: true });
+      // another chat was opened while this one was loading
+      if (selectedChatcompare?._id !== chatId) return;
+      // keep anything that arrived over the socket meanwhile
+      setMessages((arrived) => arrived.reduce(appendMessage, data as Message[]));
       setLoading(false);
       setLoadingChats(false); // Set loadingChats to false after fetching messages
     } catch (error) {
+      if (selectedChatcompare?._id !== chatId) return;
       console.log(error);
       alert("Error fetching messages");
       setLoadingChats(false); // Set loadingChats to false in case of error
