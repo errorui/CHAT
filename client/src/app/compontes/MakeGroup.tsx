@@ -42,7 +42,7 @@ const MakeGroup = () => {
         }
         try {
           
-         let {data}=  await axios.get(`/api/user?search=${query}`,  { withCredentials: true });
+         let {data}=  await axios.get(`/api/user?search=${encodeURIComponent(query)}`,  { withCredentials: true });
          console.log(data)
       
          setsearchresults(data);

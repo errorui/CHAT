@@ -85,7 +85,7 @@ export function Drawer() {
       
         try {
            setloading(true)
-         let {data}=  await axios.get(`/api/user?search=${search}`,  { withCredentials: true });
+         let {data}=  await axios.get(`/api/user?search=${encodeURIComponent(search)}`,  { withCredentials: true });
          console.log(data)
          
         //  data as User[]
