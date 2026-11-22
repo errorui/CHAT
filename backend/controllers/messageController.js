@@ -36,6 +36,7 @@ const sendMesage=asyncHandler(async(req,res)=>{
 const allMessages=asyncHandler(async(req,res)=>{
     const chat=await getMemberChat(req,res,req.params.chatId)
     let messages=await messageModel.find({chat:chat._id})
+    .sort({createdAt:1,_id:1})
     .populate("sender","name ProfilePic email")
     .populate("chat")
     res.json(messages)
