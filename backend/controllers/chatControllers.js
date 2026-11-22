@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const chatModel = require("../models/chatModel");
 const usermodel = require("../models/userModel");
+const { messageModel } = require("../models/messageMode");
 const { isValidId, requireId, getMemberGroup, getAdminGroup } = require("../utils/chatAccess");
 
 //@description     Create or fetch One to One Chat
@@ -64,6 +65,11 @@ const accessChat = asyncHandler(async (req, res) => {
 const fetchChats = asyncHandler(async (req, res) => {
     let data=await chatModel.find({users:{$elemMatch:{$eq:req.user._id}}})
     .populate("users","-password").populate("groupAdmin","-password").populate("lastmessage").sort({updatedAt:-1})
+    // chats from before lastmessage was saved
+    await Promise.all(data.filter((chat)=>!chat.lastmessage).map(async (chat)=>{
+      const latest=await messageModel.findOne({chat:chat._id}).sort({createdAt:-1,_id:-1});
+      if(latest) chat.lastmessage=latest;
+    }))
     data=await usermodel.populate(data,{
         path:"lastmessage.sender",
         select:"name email"
