@@ -226,7 +226,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
                 const shouldDisplaySender = isSameSender(messages, message, index, user?._id) || isLastMessage(messages, index, user?._id);
                 const isSentByUser = message.sender?._id === user?._id;
                 return (
-                  <div key={index} className={`my-[1px] flex ${isSentByUser ? 'justify-end' : 'justify-start'}`}>
+                  <div key={message._id} className={`my-[1px] flex ${isSentByUser ? 'justify-end' : 'justify-start'}`}>
                     {shouldDisplaySender && message.sender && (
                     <Dialog  >
                     <DialogTrigger asChild>
