@@ -8,6 +8,8 @@ const apiUrl = (
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // this folder is the app, the lockfile above it belongs to the api
+  turbopack: { root: import.meta.dirname },
   env: { NEXT_PUBLIC_API_URL: apiUrl },
   // serve the api from this site, so the login cookie is first party and not blocked
   async rewrites() {
