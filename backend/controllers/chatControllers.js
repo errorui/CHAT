@@ -31,8 +31,8 @@ const accessChat = asyncHandler(async (req, res) => {
      }).populate("users","-password").populate("lastmessage")
 
      isChat=await usermodel.populate(isChat,{
-        path:"lastestMessage.sender",
-        select:"name pic email"
+        path:"lastmessage.sender",
+        select:"name email"
      })
      if(isChat.length>0) {
         res.send(isChat[0]);
@@ -65,8 +65,8 @@ const fetchChats = asyncHandler(async (req, res) => {
     let data=await chatModel.find({users:{$elemMatch:{$eq:req.user._id}}})
     .populate("users","-password").populate("groupAdmin","-password").populate("lastmessage").sort({updateAt:-1})
     data=await usermodel.populate(data,{
-        path:"lastestMessage.sender",
-        select:"name pic email"
+        path:"lastmessage.sender",
+        select:"name email"
      })
   
     res.send(data);
