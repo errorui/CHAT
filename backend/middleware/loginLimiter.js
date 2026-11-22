@@ -28,5 +28,7 @@ const limitFailedLogins = (limit, key) =>
   });
 
 const limitLoginPerClient = limitFailedLogins(10, (req) => `${accountKey(req)}|${clientKey(req)}`);
+// the header can be forged by calling the api directly, so the account has a ceiling of its own
+const limitLoginPerAccount = limitFailedLogins(50, accountKey);
 
-module.exports = { limitLoginPerClient };
+module.exports = { limitLoginPerClient, limitLoginPerAccount };
