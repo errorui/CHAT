@@ -4,6 +4,7 @@ import React from "react";
 import { useChat } from "@/context/ChatProvider";
 import { cn } from "@/lib/utils";
 import ChatBox from "../compontes/ChatBox";
+import { ConnectionBanner } from "../compontes/ConnectionBanner";
 import Header from "../compontes/Header";
 import { Logo } from "../compontes/Logo";
 import MyChats from "../compontes/MyChats";
@@ -26,6 +27,7 @@ const ChatsPage = () => {
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden">
+      <ConnectionBanner />
       <div className="flex min-h-0 flex-1">
         {/* phones show one pane at a time */}
         <aside
