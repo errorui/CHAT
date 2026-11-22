@@ -57,6 +57,8 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
     let retry: ReturnType<typeof setTimeout>;
     socket.on('connect', () => {
       setSocketConnected(true);
+      // rooms are forgotten on every reconnect
+      if (selectedChatcompare) connection.emit("joinchat", selectedChatcompare._id);
     });
     socket.on('connect_error', () => {
       // socket.io doesn't retry by itself when the server refuses the connection
