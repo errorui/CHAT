@@ -68,11 +68,11 @@ const LoginForm = () => {
         formData.append("password", values.password);
       
         let result=await LoginUser(formData);
-        if(result==="Invalid email"||result==="Invalid credentials"){
+        // every failure comes back as a string
+        if(typeof result==="string"){
           toast({
             variant: "destructive",
-            title: "invalid credentials",
-            action: <ToastAction altText="Try again">Try different email</ToastAction>,
+            title: result,
            
           })
    
