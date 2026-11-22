@@ -9,6 +9,7 @@ import { useWakingUp } from "@/hooks/useWakingUp";
 import { Logo } from "../compontes/Logo";
 import { ProfileEmailForm } from "../compontes/ProfileEmailForm";
 import { ProfileNameForm } from "../compontes/ProfileNameForm";
+import { ProfilePasswordForm } from "../compontes/ProfilePasswordForm";
 import { ProfilePhotoForm } from "../compontes/ProfilePhotoForm";
 
 const ProfilePage = () => {
@@ -43,6 +44,7 @@ const ProfilePage = () => {
         <ProfilePhotoForm user={user} />
         <ProfileNameForm user={user} />
         <ProfileEmailForm user={user} />
+        <ProfilePasswordForm user={user} />
       </main>
     </div>
   );
