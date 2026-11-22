@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Bricolage_Grotesque, Figtree } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster"
 import { ChatProvider } from "@/context/ChatProvider";
 
-const inter = Inter({ subsets: ["latin"] });
+const body = Figtree({ subsets: ["latin"], variable: "--font-body" });
+const display = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-display" });
 
 export const metadata: Metadata = {
   title: "talk-tip",
@@ -17,8 +18,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html lang="en" className={`${body.variable} ${display.variable}`}>
+      <body>
         <ChatProvider>
         
         {children}
