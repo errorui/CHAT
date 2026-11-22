@@ -1,0 +1,24 @@
+const { isObjectIdOrHexString } = require("mongoose");
+const chatModel = require("../models/chatModel");
+
+const isValidId = (value) => typeof value === "string" && isObjectIdOrHexString(value);
+
+const requireId = (res, value, label) => {
+  if (!isValidId(value)) {
+    res.status(400);
+    throw new Error(`Invalid ${label}`);
+  }
+};
+
+// 404 rather than 403, so outsiders can't tell which chats exist
+const getMemberChat = async (req, res, chatId) => {
+  requireId(res, chatId, "chat id");
+  const chat = await chatModel.findById(chatId);
+  if (!chat || !chat.users.some((id) => id.equals(req.user._id))) {
+    res.status(404);
+    throw new Error("Chat Not Found");
+  }
+  return chat;
+};
+
+module.exports = { isValidId, requireId, getMemberChat };
