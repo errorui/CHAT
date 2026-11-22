@@ -15,7 +15,7 @@ export type User = {
     chatName: string;
     isGroupChat: boolean;
     users: User[];
-    lastMessage: Message[]; 
+    lastmessage?: Message; 
     groupAdmin: User;
   };
   
