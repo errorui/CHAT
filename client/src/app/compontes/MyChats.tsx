@@ -74,7 +74,7 @@ const MyChats = ({fetchAgain}:{
         return(
           <Card key={i._id} onClick={()=>{
             setSelectedChat(i)
-          }}  className={`${i===selectedChat?"bg-black text-white":""}  py-4 px-2 flex items-center hover:bg-slate-950 hover:text-white`}>
+          }}  className={`${i._id===selectedChat?._id?"bg-black text-white":""}  py-4 px-2 flex items-center hover:bg-slate-950 hover:text-white`}>
        
     
           <div>
