@@ -101,14 +101,14 @@ export function Drawer() {
     try {
       setloadingChat(true)
       let {data}=  await axios.post(`/api/chat`,{userId}  ,{ withCredentials: true });
-      console.log(data)
       if(!chats.find((c:any)=>data._id===c._id)){
         setChats([...chats,data])
       }
       setSelectedChat(data)
-      setloadingChat(false)
     } catch (error) {
-      
+      toast({ variant: "destructive", title: "Could not open the chat" })
+    } finally {
+      setloadingChat(false)
     }
    }
   return (
