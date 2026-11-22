@@ -258,7 +258,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
   </DialogContent>
                   </Dialog>
                     )}
-                    <span className={`${isSentByUser ? "bg-white text-black" : "bg-black text-white"} p-3 shadow-lg rounded-lg max-w-xs`}>
+                    <span className={`${isSentByUser ? "bg-white text-black" : "bg-black text-white"} p-3 shadow-lg rounded-lg max-w-xs min-w-0 whitespace-pre-wrap [overflow-wrap:anywhere]`}>
                       {message.content}
                     </span>
                   </div>
