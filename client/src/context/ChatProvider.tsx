@@ -17,6 +17,7 @@ type ContextType = {
   session: SessionState;
   signOut: () => Promise<void>;
   sessionChanged: () => void;
+  updateUser: (changes: User) => void;
   selectedChat: Chat | undefined;
   setSelectedChat: React.Dispatch<React.SetStateAction<Chat | undefined>>;
   chats: Chat[];
@@ -102,6 +103,10 @@ const ChatProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       if (request === listRequest.current) listLoading.current = false;
     }
+  }, []);
+
+  const updateUser = useCallback((changes: User) => {
+    setUser((current) => (current?._id === changes._id ? { ...current, ...changes } : current));
   }, []);
 
   const showInList = useCallback((message: Message) => {
@@ -228,6 +233,11 @@ const ChatProvider = ({ children }: { children: ReactNode }) => {
     });
 
     client.on("chats changed", () => void refreshChats());
+    // someone we share a chat with, or ourselves in another tab
+    client.on("profile changed", (changed: User) => {
+      updateUser(changed);
+      void refreshChats();
+    });
 
     client.on("message received", (message: Message) => {
       const chatId = message.chat._id;
@@ -249,7 +259,7 @@ const ChatProvider = ({ children }: { children: ReactNode }) => {
       setSocket(null);
       setConnection("connecting");
     };
-  }, [userId, refreshChats, showInList]);
+  }, [userId, refreshChats, showInList, updateUser]);
 
   return (
     <ChatContext.Provider
@@ -258,6 +268,7 @@ const ChatProvider = ({ children }: { children: ReactNode }) => {
         session,
         signOut,
         sessionChanged,
+        updateUser,
         selectedChat,
         setSelectedChat,
         chats,
