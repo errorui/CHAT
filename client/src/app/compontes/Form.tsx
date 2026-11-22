@@ -1,48 +1,51 @@
 "use client";
 
-import React, { useEffect, useLayoutEffect, useState } from "react";
-import {
-  Card,
- 
-} from "@/components/ui/card";
-import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useChat } from "@/context/ChatProvider";
 import LoginForm from "./loginForm";
 import SignupForm from "./SignupForm";
-import { useChat } from "@/context/ChatProvider";
-import { usePathname, useRouter } from "next/navigation";
 
 const ChatForm = () => {
-  let{user}=useChat()
-  const pathname = usePathname();
+  const { user, session } = useChat();
   const router = useRouter();
+  const [tab, setTab] = useState("login");
 
-  useEffect(()=>{
-    if(user){
-      router.push('/chats')
-    }
-  },[user, router])
-  
+  useEffect(() => {
+    if (user) router.replace("/chats");
+  }, [user, router]);
+
   return (
-    <Tabs defaultValue="sign up" className="w-full">
-      <TabsList className="grid w-full grid-cols-2 mb-3">
-        <TabsTrigger className="uppercase" value="sign up">
-          sign up
-        </TabsTrigger>
-        <TabsTrigger className="uppercase" value="login">
-          login
-        </TabsTrigger>
-      </TabsList>
-      <TabsContent value="sign up">
-      <SignupForm></SignupForm>
-      </TabsContent>
-      <TabsContent value="login">
-        <Card className="p-5">
-          <h1 className="text-3xl text-center p-3 uppercase">login</h1>
+    <div className="space-y-6">
+      <div>
+        <h1 className="font-display text-3xl font-bold tracking-tight">
+          {tab === "login" ? "Welcome back" : "Create your account"}
+        </h1>
+        <p className="mt-1.5 text-sm text-muted-foreground">
+          {tab === "login" ? "Sign in to pick up where you left off." : "It takes less than a minute."}
+        </p>
+      </div>
+
+      {session === "unreachable" && (
+        <p role="status" className="rounded-xl bg-accent px-4 py-3 text-sm text-accent-foreground">
+          Waking the server up. The first request can take up to a minute.
+        </p>
+      )}
+
+      <Tabs value={tab} onValueChange={setTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="login">Sign in</TabsTrigger>
+          <TabsTrigger value="signup">Create account</TabsTrigger>
+        </TabsList>
+        <TabsContent value="login" className="mt-6">
           <LoginForm />
-        </Card>
-      </TabsContent>
-    </Tabs>
+        </TabsContent>
+        <TabsContent value="signup" className="mt-6">
+          <SignupForm />
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
 
