@@ -1,7 +1,7 @@
 "use client";
 
 import axios from "axios";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useChat } from "@/context/ChatProvider";
 import { relayMessage } from "@/lib/previousApi";
 import type { Message, PendingMessage } from "@/app/type";
@@ -45,9 +45,11 @@ export function useConversation(chatId?: string) {
     }
   }, [chatId]);
 
-  useEffect(() => {
+  // before paint, so one chat's messages never appear under another chat's name
+  useLayoutEffect(() => {
     activeChat.current = chatId;
     setMessages([]);
+    setTypingIds([]);
     setHistory("loading");
     void loadHistory();
     return () => {
