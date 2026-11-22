@@ -89,6 +89,9 @@ const createGroupChat = asyncHandler(async (req, res) => {
   console.log("working2?")
    return res.status(400).send({message:"Pick at least 2 other people"})
  }
+ if((await usermodel.countDocuments({_id:{$in:users}}))!==users.length){
+   return res.status(400).send({message:"Some of those users do not exist"})
+ }
  users.push(req.user)
  try {
    
