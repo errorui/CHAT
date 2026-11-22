@@ -94,7 +94,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
       clearTimeout(retry);
       connection.disconnect();
     };
-  }, [user]);
+  }, [user?._id]);
 
   useEffect(() => {
     if (selectedChat) {
