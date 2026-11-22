@@ -88,6 +88,8 @@
 @layer base {
   * {
     @apply border-border;
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--input) / 0.55) transparent;
   }
 
   html {
