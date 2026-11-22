@@ -72,7 +72,6 @@ const fetchChats = asyncHandler(async (req, res) => {
 //@access          Protected
 const createGroupChat = asyncHandler(async (req, res) => {
  if(!req.body.users||typeof req.body.name!=="string"||!req.body.name.trim()){
-  console.log("working1?")
    return res.status(400).send({message:"Please fill all the fields"})
  }
  let users;
@@ -86,7 +85,6 @@ const createGroupChat = asyncHandler(async (req, res) => {
  }
  users=[...new Set(users.map((id)=>id.toLowerCase()))].filter((id)=>!req.user._id.equals(id));
  if(users.length<2){
-  console.log("working2?")
    return res.status(400).send({message:"Pick at least 2 other people"})
  }
  if((await usermodel.countDocuments({_id:{$in:users}}))!==users.length){
