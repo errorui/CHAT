@@ -52,7 +52,7 @@ const ChatProvider = ({ children }: { children: ReactNode }) => {
     };
 
     fetchUser();
-  }, [pathname, selectedChat]);
+  }, [pathname]);
 
   return (
     <ChatContext.Provider value={{
