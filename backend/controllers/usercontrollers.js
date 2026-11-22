@@ -4,7 +4,7 @@ const { generateToken } = require("../config/generateToken");
 const { setAuthCookie } = require("../config/authCookie");
 const { imageType } = require("../config/imageType");
 const { requireId } = require("../utils/chatAccess");
-const { deliveryUrl } = require("../config/avatarStorage");
+const { storeAvatar, deleteAvatar, deliveryUrl } = require("../config/avatarStorage");
 
 const upload = require("../config/multer-config");
 const userModel = require("../models/userModel");
@@ -17,7 +17,7 @@ const findUserByEmail = async (email) =>
 
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
-  const ProfilePic = req.file ? req.file.buffer.toString("base64") : undefined;
+
 
   if (
     [name, email, password].some((value) => typeof value !== "string") ||
@@ -39,15 +39,17 @@ const registerUser = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "User already exists" });
   }
 
+  const photo = req.file ? await storeAvatar(req.file.buffer) : {};
   let user;
   try {
     user = await userModel.create({
       name,
       email: normalizedEmail,
       password,
-      ProfilePic,
+      ...photo,
     });
   } catch (error) {
+    await deleteAvatar(photo.avatarPublicId); // no account ended up owning it
     // another request registered the same email first
     if (error.code === 11000) {
       return res.status(400).json({ message: "User already exists" });
