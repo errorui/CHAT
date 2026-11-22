@@ -1,7 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const chatModel = require("../models/chatModel");
 const usermodel = require("../models/userModel");
-const { requireId, getMemberGroup, getAdminGroup } = require("../utils/chatAccess");
+const { isValidId, requireId, getMemberGroup, getAdminGroup } = require("../utils/chatAccess");
 
 //@description     Create or fetch One to One Chat
 //@route           POST /api/chat/
@@ -75,7 +75,15 @@ const createGroupChat = asyncHandler(async (req, res) => {
   console.log("working1?")
    return res.status(400).send({message:"Please fill all the fields"})
  }
- let users=JSON.parse(req.body.users);
+ let users;
+ try {
+   users=JSON.parse(req.body.users);
+ } catch {
+   users=null;
+ }
+ if(!Array.isArray(users)||!users.every(isValidId)){
+   return res.status(400).send({message:"Invalid list of members"})
+ }
  if(users.length<2){
   console.log("working2?")
    return res.status(400).send("more than 2 users are required")
