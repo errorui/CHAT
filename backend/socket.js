@@ -5,7 +5,7 @@ const createSocketServer = (server, origin) => {
   const io = new Server(server, {
     pingTimeout: 100000,
     cors: { origin, credentials: true },
-    maxHttpBufferSize: 1e8,
+
   });
 
   io.use((socket, next) => {
