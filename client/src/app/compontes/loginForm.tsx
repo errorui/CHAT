@@ -20,7 +20,6 @@ import { useToast } from '@/components/ui/use-toast'
 import { ToastAction } from '@/components/ui/toast'
 import axios from "axios";
 import { useRouter } from 'next/navigation'
-import e from 'cors'
 
 
 
