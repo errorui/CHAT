@@ -72,12 +72,13 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
       if (!connection.active) retry = setTimeout(() => connection.connect(), 5000);
     });
 
-    socket.on("typing", ({ chatId }: { chatId: string }) => {
-      setTypingChat(chatId);
+    // an api from before typing was scoped sends these without a payload
+    socket.on("typing", (event?: { chatId?: string }) => {
+      if (event?.chatId) setTypingChat(event.chatId);
     });
 
-    socket.on("stop typing", ({ chatId }: { chatId: string }) => {
-      setTypingChat((current) => (current === chatId ? null : current));
+    socket.on("stop typing", (event?: { chatId?: string }) => {
+      setTypingChat((current) => (current === event?.chatId ? null : current));
     });
 
     socket.on("chats changed", () => {
