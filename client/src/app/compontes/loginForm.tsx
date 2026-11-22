@@ -116,7 +116,7 @@ const LoginForm = () => {
             <FormItem>
               <FormLabel>password</FormLabel>
               <FormControl>
-                <Input placeholder="password" {...field} />
+                <Input type="password" autoComplete="current-password" placeholder="password" {...field} />
               </FormControl>
              
               <FormMessage />
