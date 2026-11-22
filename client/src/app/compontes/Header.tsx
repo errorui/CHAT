@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { LuBell, LuLogOut, LuUser } from "react-icons/lu";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/components/ui/use-toast";
 import { useChat } from "@/context/ChatProvider";
-import { chatTitle } from "@/lib/chat";
+import { chatTitle, focusComposer } from "@/lib/chat";
 import { errorMessage } from "@/lib/errors";
 import { Logo } from "./Logo";
 import ProfileModal from "./ProfileModal";
@@ -27,6 +27,7 @@ const Header = () => {
   const { user, signOut, chats, notification, setSelectedChat } = useChat();
   const { toast } = useToast();
   const [profileOpen, setProfileOpen] = useState(false);
+  const openedChat = useRef(false);
 
   if (!user) return null;
 
@@ -78,14 +79,31 @@ const Header = () => {
               )}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-80 max-w-[calc(100vw-1.5rem)]">
+          <DropdownMenuContent
+            align="end"
+            className="w-80 max-w-[calc(100vw-1.5rem)]"
+            onCloseAutoFocus={(event) => {
+              // the menu would hand focus back to the bell, typing belongs in the chat
+              if (!openedChat.current) return;
+              openedChat.current = false;
+              event.preventDefault();
+              focusComposer();
+            }}
+          >
             <DropdownMenuLabel>Notifications</DropdownMenuLabel>
             <DropdownMenuSeparator />
             {!unread.length && (
               <p className="px-2 py-6 text-center text-sm text-muted-foreground">You&apos;re all caught up.</p>
             )}
             {unread.map(({ chat, count, latest }) => (
-              <DropdownMenuItem key={chat._id} onSelect={() => setSelectedChat(chat)} className="gap-3 py-2.5">
+              <DropdownMenuItem
+                key={chat._id}
+                onSelect={() => {
+                  openedChat.current = true;
+                  setSelectedChat(chat);
+                }}
+                className="gap-3 py-2.5"
+              >
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-semibold">{chatTitle(user, chat)}</span>
                   <span className="block truncate text-xs text-muted-foreground">
