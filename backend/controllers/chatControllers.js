@@ -183,7 +183,7 @@ const addToGroup = asyncHandler(async (req, res) => {
   const added = await chatModel.findByIdAndUpdate(
     chatId,
     {
-      $push: { users: userId },
+      $addToSet: { users: userId },
     },
     {
       new: true,
