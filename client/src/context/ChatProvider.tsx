@@ -194,7 +194,7 @@ const ChatProvider = ({ children }: { children: ReactNode }) => {
 
     client.on("message received", (message: Message) => {
       const chatId = message.chat._id;
-      void refreshChats();
+      showInList(message);
       // a chat we don't have yet, or a list response that predates this message
       if (listLoading.current || !knownChats.current.some((chat) => chat._id === chatId)) void refreshChats();
 
