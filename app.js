@@ -7,7 +7,7 @@ const userRoute = require('./backend/routes/userRoute');
 const chatRoutes = require('./backend/routes/chatRoute');
 const messageRoute = require('./backend/routes/messageRoutes');
 const { notFound, errorHandler } = require('./backend/middleware/errorMiddleware');
-const { Socket } = require('socket.io');
+const { createSocketServer } = require('./backend/socket');
 
 dotenv.config();
 // comma separated list of frontends allowed to use the api
@@ -77,46 +77,4 @@ const server = app.listen(
   () => console.log(`Server running on PORT ${PORT}...`)
 );
 
-const io = require('socket.io')(server, {
-  pingTimeout: 100000,
-  cors: {
-    origin: origin,
-    credentials: true
-  },
-  maxHttpBufferSize: 1e8 
-});
-
-
-io.on("connection", (socket) => {
-  console.log("connected");
-
-  socket.on('setup', (userData) => {
-    if (typeof userData?._id !== "string") return;
-    socket.join(userData._id);
-    socket.emit("connected");
-  });
-
-  socket.on('joinchat', (room) => {
-    if (typeof room !== "string") return;
-    socket.join(room);
-    console.log("user joined the room " + room);
-  });
-  
-  socket.on("typing", (room) => {
-    socket.in(room).emit("typing");
-  });
-
-  socket.on("stop typing", (room) => {
-    socket.in(room).emit("stop typing");
-  });
-
-  socket.on("message", (newMessageReceived) => {
-    var chat = newMessageReceived?.chat;
-    if (!Array.isArray(chat?.users)) return console.log("chat.users not defined");
-
-    chat.users.forEach((user) => {
-      if (typeof user?._id !== "string" || user._id === newMessageReceived.sender?._id) return;
-      socket.in(user._id).emit("message received", newMessageReceived);
-    });
-  });
-});
+createSocketServer(server, origin);
