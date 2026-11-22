@@ -15,6 +15,12 @@ const origin = (process.env.CLIENT_URL || "https://chatchat-two.vercel.app")
   .split(",")
   .map((url) => url.trim().replace(/\/+$/, ""))
   .filter(Boolean);
+const missingEnv = ["MONGO_URL", "SECRET"].filter((key) => !process.env[key]);
+if (missingEnv.length) {
+  console.error(`Missing environment variables: ${missingEnv.join(", ")}`);
+  process.exit(1);
+}
+
 const mongoose=require('mongoose')
 mongoose.connect(`${process.env.MONGO_URL}`).then(()=>{
   console.log(
