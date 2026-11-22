@@ -1,7 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const chatModel = require("../models/chatModel");
 const usermodel = require("../models/userModel");
-const { getMemberGroup, getAdminGroup } = require("../utils/chatAccess");
+const { requireId, getMemberGroup, getAdminGroup } = require("../utils/chatAccess");
 
 //@description     Create or fetch One to One Chat
 //@route           POST /api/chat/
@@ -179,6 +179,11 @@ const addToGroup = asyncHandler(async (req, res) => {
    const { chatId, userId } = req.body;
 
   await getAdminGroup(req, res, chatId);
+  requireId(res, userId, "user id");
+  if (!(await usermodel.exists({ _id: userId }))) {
+    res.status(404);
+    throw new Error("User Not Found");
+  }
 
   const added = await chatModel.findByIdAndUpdate(
     chatId,
