@@ -1,7 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const chatModel = require("../models/chatModel");
 const usermodel = require("../models/userModel");
-const { Error } = require("mongoose");
 
 //@description     Create or fetch One to One Chat
 //@route           POST /api/chat/
