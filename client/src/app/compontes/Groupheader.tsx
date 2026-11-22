@@ -98,7 +98,7 @@ function GroupInfo({ group, close }: { group: Chat; close: () => void }) {
   return (
     <div className="min-w-0 space-y-6">
       <DialogHeader className="items-center space-y-2 pt-2 text-center sm:text-center">
-        <GroupAvatar id={group._id} size="lg" />
+        <GroupAvatar id={group._id} className="h-16 w-16" />
         <DialogTitle className="max-w-full font-display text-2xl leading-tight [overflow-wrap:anywhere]">
           {group.chatName}
         </DialogTitle>
