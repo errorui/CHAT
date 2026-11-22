@@ -84,6 +84,7 @@ const createGroupChat = asyncHandler(async (req, res) => {
  if(!Array.isArray(users)||!users.every(isValidId)){
    return res.status(400).send({message:"Invalid list of members"})
  }
+ users=[...new Set(users.map((id)=>id.toLowerCase()))].filter((id)=>!req.user._id.equals(id));
  if(users.length<2){
   console.log("working2?")
    return res.status(400).send("more than 2 users are required")
