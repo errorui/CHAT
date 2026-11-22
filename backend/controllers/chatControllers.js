@@ -63,7 +63,7 @@ const accessChat = asyncHandler(async (req, res) => {
 //@access          Protected
 const fetchChats = asyncHandler(async (req, res) => {
     let data=await chatModel.find({users:{$elemMatch:{$eq:req.user._id}}})
-    .populate("users","-password").populate("groupAdmin","-password").populate("lastmessage").sort({updateAt:-1})
+    .populate("users","-password").populate("groupAdmin","-password").populate("lastmessage").sort({updatedAt:-1})
     data=await usermodel.populate(data,{
         path:"lastmessage.sender",
         select:"name email"
