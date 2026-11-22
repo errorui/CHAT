@@ -182,6 +182,17 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
     clearTimeout(typingTimer.current);
     typingTimer.current = setTimeout(stopTyping, 3000);
   };
+  // not chats.find(): the first chat with this person is often the group itself
+  const openDirectChat = async (userId: string) => {
+    try {
+      const { data } = await axios.post('/api/chat', { userId }, { withCredentials: true });
+      setSelectedChat(data);
+      setFetchAgain((value: boolean) => !value);
+    } catch (error) {
+      toast({ variant: "destructive", title: "Could not open the chat" });
+    }
+  };
+
   const handleAvatarClick = (user: User) => {
  
     setIsDialogOpen(true);
@@ -234,20 +245,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
       </DialogDescription>
     </DialogHeader>
     <Button onClick={() => {
-  if (message.sender && chats.length > 0) {
-  
-    const similarChat = chats.find(chat =>
-      chat.users.some(user =>
-        user.email.toLowerCase() === message.sender.email.toLowerCase()
-      )
-    );
-
-    if (similarChat) {
-      setSelectedChat(similarChat); 
-    } else {
-      alert("No chat found with the user in current chats");
-    }
-  }
+  openDirectChat(message.sender._id);
 }}>Talk</Button>
 
  
