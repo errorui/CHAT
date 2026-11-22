@@ -99,6 +99,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
   useEffect(() => {
     selectedChatcompare = selectedChat;
     setMessages([]);
+    setNewMessage("");
     if (selectedChat) {
       setLoadingChats(true);
       fetchMessages();
