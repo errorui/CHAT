@@ -81,7 +81,8 @@ const ProfileModal = ({ user, children, open, onOpenChange }: Props) => {
             {user.name}
           </DialogTitle>
           <DialogDescription className="max-w-full [overflow-wrap:anywhere]">
-            {user.email || "This account no longer exists."}
+            {/* the live copy of a sender can come without an email */}
+            {user._id ? user.email : "This account no longer exists."}
             {isMe && " (you)"}
           </DialogDescription>
         </DialogHeader>
