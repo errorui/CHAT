@@ -1,7 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const chatModel = require("../models/chatModel");
 const usermodel = require("../models/userModel");
-const { getMemberChat } = require("../utils/chatAccess");
+const { getMemberGroup } = require("../utils/chatAccess");
 
 //@description     Create or fetch One to One Chat
 //@route           POST /api/chat/
@@ -98,7 +98,7 @@ const createGroupChat = asyncHandler(async (req, res) => {
 // @access  Protected
 const renameGroup = asyncHandler(async (req, res) => {
    const { chatId, chatName } = req.body;
-   await getMemberChat(req, res, chatId);
+   await getMemberGroup(req, res, chatId);
    
    const updatedChat = await chatModel.findByIdAndUpdate(
      chatId,

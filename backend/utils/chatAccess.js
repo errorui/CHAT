@@ -21,4 +21,13 @@ const getMemberChat = async (req, res, chatId) => {
   return chat;
 };
 
-module.exports = { isValidId, requireId, getMemberChat };
+const getMemberGroup = async (req, res, chatId) => {
+  const chat = await getMemberChat(req, res, chatId);
+  if (!chat.isGroupChat) {
+    res.status(400);
+    throw new Error("Not a group chat");
+  }
+  return chat;
+};
+
+module.exports = { isValidId, requireId, getMemberChat, getMemberGroup };
