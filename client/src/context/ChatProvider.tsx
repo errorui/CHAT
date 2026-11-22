@@ -126,6 +126,20 @@ const ChatProvider = ({ children }: { children: ReactNode }) => {
     router.replace("/");
   }, [clearSession, router]);
 
+  // the login expired while the app was open
+  useEffect(() => {
+    if (!userId) return;
+    const id = axios.interceptors.response.use(undefined, (error) => {
+      if (axios.isAxiosError(error) && error.response?.status === 401 && error.config?.url !== "/api/user/login") {
+        clearSession();
+        setSession("signed-out");
+        router.replace("/");
+      }
+      return Promise.reject(error);
+    });
+    return () => axios.interceptors.response.eject(id);
+  }, [userId, clearSession, router]);
+
   // who is signed in
   useEffect(() => {
     let cancelled = false;
