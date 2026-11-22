@@ -50,11 +50,10 @@ const ChatProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
       if (!res) {
-        console.log("No user");
-        console.log(res);
+
         router.push('/');
       } else {
-        console.log("User found");
+
         setUser(res);
       }
     };
