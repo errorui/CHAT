@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api';
 import { useChat } from '@/context/ChatProvider';
 import React, { useEffect, useState } from 'react';
 import { getSender, isLastMessage, isSameSender } from '../utils/getContact';
@@ -24,11 +25,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-const EndPoint = 'https://chat-12-z8u3.onrender.com';
 let socket: Socket<DefaultEventsMap, DefaultEventsMap> | null = null;
 let selectedChatcompare: Chat;
 
-const API_URL = 'https://chat-12-z8u3.onrender.com';
 
 const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain: any }) => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -44,7 +43,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
   useEffect(() => {
     if (!user) return;
 
-    socket = io(EndPoint);
+    socket = io(API_URL);
     socket.emit("setup", user);
     socket.on('connected', () => {
       setSocketConnected(true);

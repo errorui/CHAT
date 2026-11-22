@@ -10,7 +10,6 @@ import MyChats from '../compontes/MyChats';
 import ChatBox from '../compontes/ChatBox';
 import Header from '../compontes/Header';
 
-const API_URL = 'https://chat-12-z8u3.onrender.com/';
 const page = () => {
   let {user}=useChat()
   const [fetchAgain, setFetchAgain] = useState(false);

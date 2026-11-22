@@ -1,5 +1,6 @@
 "use client"
 
+import { API_URL } from '@/lib/api';
 import React from 'react'
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -23,7 +24,6 @@ import { useRouter } from 'next/navigation'
 
 
 
-const API_URL = 'https://chat-12-z8u3.onrender.com';
  const formSchema = z.object({
     email: z.string().min(2, {
       message: "enter login",

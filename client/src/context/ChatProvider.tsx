@@ -1,11 +1,11 @@
 "use client";
 
+import { API_URL } from '@/lib/api';
 import axios from "axios";
 import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { User, Chat, Message } from '../app/type';
 
-const API_URL = 'https://chat-12-z8u3.onrender.com';
 
 type ContextType = {
   user: User | null;

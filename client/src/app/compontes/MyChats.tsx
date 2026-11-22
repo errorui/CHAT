@@ -1,4 +1,5 @@
 "use client"
+import { API_URL } from '@/lib/api';
 import { ToastAction } from '@/components/ui/toast';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -23,7 +24,6 @@ import {Chat} from '../type'
 import { getSender } from '../utils/getContact';
 import MakeGroup from './MakeGroup';
 
-const API_URL = 'https://chat-12-z8u3.onrender.com';
 
 const MyChats = ({fetchAgain}:{
   fetchAgain:any

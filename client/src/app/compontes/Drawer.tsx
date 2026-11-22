@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api';
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -65,7 +66,6 @@ import { useToast } from "@/components/ui/use-toast"
 import { ToastAction } from "@radix-ui/react-toast"
 
 import { Chat } from "../type"
-const API_URL = 'https://chat-12-z8u3.onrender.com';
 
 
 export function Drawer() {

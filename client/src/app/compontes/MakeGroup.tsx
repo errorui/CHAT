@@ -1,4 +1,5 @@
 "use client"
+import { API_URL } from '@/lib/api';
 import React, { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import {
@@ -18,7 +19,6 @@ import axios from 'axios';
 import { useChat } from '@/context/ChatProvider'
 import UserListItem from './UserListItem'
 import { User } from '../type'
-const API_URL = 'https://chat-12-z8u3.onrender.com';
 const MakeGroup = () => {
     const [search,setsearch]=useState("")
     const[searchresults,setsearchresults]=useState([]);

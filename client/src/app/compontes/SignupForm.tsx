@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api';
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
@@ -6,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
-const API_URL = 'https://chat-12-z8u3.onrender.com';
 
 const postuser = async (formData: FormData) => {
   try {

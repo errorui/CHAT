@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/api';
 import { useChat } from '@/context/ChatProvider'
 import React from 'react'
 import { Button } from "@/components/ui/button"
@@ -38,7 +39,6 @@ import { User, Chat, Message } from '../type';
 
 
 
-  const API_URL = 'https://chat-12-z8u3.onrender.com';
 
 
 const Header = () => {
