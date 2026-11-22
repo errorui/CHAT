@@ -58,4 +58,13 @@ const updatePhoto = asyncHandler(async (req, res) => {
   res.json(user);
 });
 
-module.exports = { updateName, updatePhoto };
+const removePhoto = asyncHandler(async (req, res) => {
+  const previous = await replacePicture(req.user._id, { ProfilePic: "", avatarPublicId: "" });
+  await deleteAvatar(previous?.avatarPublicId);
+
+  const user = await userModel.findById(req.user._id);
+  await announceProfile(req, user);
+  res.json(user);
+});
+
+module.exports = { updateName, updatePhoto, removePhoto };
