@@ -48,6 +48,11 @@ app.get('/', (req, res) => {
   res.send('API is working');
 });
 
+// responses are per user, so proxies and browsers must not store them
+app.use('/api', (req, res, next) => {
+  res.set('Cache-Control', 'private, no-store');
+  next();
+});
 app.use('/api/user', userRoute);
 app.use('/api/chat', chatRoutes);
 app.use('/api/message', messageRoute);
