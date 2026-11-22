@@ -2,7 +2,7 @@ const asyncHandler = require("express-async-handler");
 const { messageModel } = require("../models/messageMode");
 const userModel = require("../models/userModel");
 const chatModel = require("../models/chatModel");
-const { getMemberChat } = require("../utils/chatAccess");
+const { requireId, getMemberChat } = require("../utils/chatAccess");
 const { emitToUsers } = require("../socket");
 
 
@@ -35,13 +35,36 @@ const sendMesage=asyncHandler(async(req,res)=>{
     res.json(message)
 
 })
+const PAGE_SIZE=50
+const MAX_PAGE_SIZE=100
+
+// the newest page, or the one before the message id in ?before
 const allMessages=asyncHandler(async(req,res)=>{
     const chat=await getMemberChat(req,res,req.params.chatId)
-    let messages=await messageModel.find({chat:chat._id})
-    .sort({createdAt:1,_id:1})
+    const requested=Math.floor(Number(req.query.limit))
+    const limit=requested>0?Math.min(requested,MAX_PAGE_SIZE):PAGE_SIZE
+
+    const filter={chat:chat._id}
+    const {before}=req.query
+    if(before!==undefined){
+        requireId(res,before,"message id")
+        const cursor=await messageModel.findOne({_id:before,chat:chat._id}).select("createdAt")
+        if(!cursor){
+            res.status(400)
+            throw new Error("That message is not in this chat")
+        }
+        filter.$or=[
+            {createdAt:{$lt:cursor.createdAt}},
+            {createdAt:cursor.createdAt,_id:{$lt:cursor._id}},
+        ]
+    }
+
+    let messages=await messageModel.find(filter)
+    .sort({createdAt:-1,_id:-1})
+    .limit(limit)
     .populate("sender","name email")
     .populate("chat")
-    res.json(messages)
+    res.json(messages.reverse())
 }
 
 )
