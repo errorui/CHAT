@@ -10,6 +10,8 @@ const userSchema=mongoose.Schema({
       default: "",
       select: false, // can be megabytes, only the avatar route loads it
     },
+    // set when ProfilePic is a cloudinary url rather than base64
+    avatarPublicId: { type: String, select: false },
     isAdmin: {
       type: Boolean,
       required: true,
@@ -22,6 +24,7 @@ const userSchema=mongoose.Schema({
     transform(doc, ret) {
       delete ret.password;
       delete ret.ProfilePic;
+      delete ret.avatarPublicId;
       return ret;
     },
   },

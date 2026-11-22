@@ -4,6 +4,7 @@ const { generateToken } = require("../config/generateToken");
 const { setAuthCookie } = require("../config/authCookie");
 const { imageType } = require("../config/imageType");
 const { requireId } = require("../utils/chatAccess");
+const { deliveryUrl } = require("../config/avatarStorage");
 
 const upload = require("../config/multer-config");
 const userModel = require("../models/userModel");
@@ -125,7 +126,11 @@ const allUsers = asyncHandler(async (req, res) => {
 
 const getAvatar = asyncHandler(async (req, res) => {
   requireId(res, req.params.id, "user id");
-  const user = await userModel.findById(req.params.id).select("+ProfilePic");
+  const user = await userModel.findById(req.params.id).select("+ProfilePic +avatarPublicId");
+  if (user?.avatarPublicId && user.ProfilePic?.startsWith("https://")) {
+    res.set("Cache-Control", "private, max-age=86400");
+    return res.redirect(deliveryUrl(user.ProfilePic));
+  }
   const image = Buffer.from(user?.ProfilePic || "", "base64");
   const type = imageType(image);
 
