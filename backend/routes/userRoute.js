@@ -18,7 +18,7 @@ router.post("/login", authUser);
 router.get("/user", protect, (req, res) => {
   res.send(req.user);
 });
-router.route("/logout").get(protect, (req, res) => {
+router.route("/logout").get((req, res) => {
   clearAuthCookie(res);
   return res.send("logout succesfull");
 });
