@@ -29,9 +29,9 @@ import { useRouter } from 'next/navigation'
     }).email("Invalid email"),
     password: z.string()
   });
-const LoginUser = async (formdata: FormData) => {
+const LoginUser = async (credentials: z.infer<typeof formSchema>) => {
     try {
-      const response = await axios.post(`/api/user/login`, formdata,{
+      const response = await axios.post(`/api/user/login`, credentials,{
         headers: {
           'Content-Type': 'application/json',
         },
@@ -64,11 +64,7 @@ const LoginForm = () => {
       })
       async function onSubmit(values: z.infer<typeof formSchema>) {
        
-        let formData = new FormData();
-        formData.append("email", values.email);
-        formData.append("password", values.password);
-      
-        let result=await LoginUser(formData);
+        let result=await LoginUser(values);
         // every failure comes back as a string
         if(typeof result==="string"){
           toast({
