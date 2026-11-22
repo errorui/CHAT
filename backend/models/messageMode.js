@@ -9,6 +9,7 @@ const messageSchema=mongoose.Schema({
 },{
     timestamps:true
 })
-messageSchema.index({chat:1,createdAt:1})
+// _id breaks ties, without it mongo reads and sorts the whole chat for every page
+messageSchema.index({chat:1,createdAt:1,_id:1})
 const messageModel=mongoose.model("message",messageSchema);
 module.exports={messageModel}
