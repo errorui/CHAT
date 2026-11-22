@@ -73,6 +73,10 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
       setTypingChat((current) => (current === chatId ? null : current));
     });
 
+    socket.on("chats changed", () => {
+      setFetchAgain((value: boolean) => !value);
+    });
+
     socket.on("message received", (newMessageReceived) => {
       if (!selectedChatcompare || selectedChatcompare._id !== newMessageReceived.chat._id) {
         // the sender's other tabs get the message too, but don't need a notification

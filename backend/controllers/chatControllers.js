@@ -3,6 +3,10 @@ const chatModel = require("../models/chatModel");
 const usermodel = require("../models/userModel");
 const { messageModel } = require("../models/messageMode");
 const { isValidId, requireId, getMemberGroup, getAdminGroup } = require("../utils/chatAccess");
+const { emitToUsers } = require("../socket");
+
+const notifyMembers = (req, chatId, userIds) =>
+  emitToUsers(req.app.get("io"), userIds, "chats changed", { chatId });
 
 //@description     Create or fetch One to One Chat
 //@route           POST /api/chat/
@@ -112,6 +116,7 @@ const createGroupChat = asyncHandler(async (req, res) => {
    })
    const fullgroupChat= await chatModel.findOne({_id:groupChat._id})
    .populate("users","-password").populate("groupAdmin","-password");
+   notifyMembers(req, fullgroupChat._id, fullgroupChat.users.map((user) => user._id));
    res.status(200).json(fullgroupChat)
  } catch (error) {
     res.status(400).json(error.message)
@@ -146,6 +151,7 @@ const renameGroup = asyncHandler(async (req, res) => {
      res.status(404);
      throw new Error("Chat Not Found");
    } else {
+     notifyMembers(req, updatedChat._id, updatedChat.users.map((user) => user._id));
      res.json(updatedChat);
    }
 });
@@ -185,6 +191,8 @@ const removeFromGroup = asyncHandler(async (req, res) => {
   } 
 
   io.in(userId.toLowerCase()).socketsLeave(String(chat._id));
+  // the list from before the update, so the removed person is told as well
+  notifyMembers(req, chat._id, chat.users);
 
   if (updatedChat.users.length === 0) {
 
@@ -230,6 +238,7 @@ const addToGroup = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("Chat Not Found");
   } else {
+    notifyMembers(req, added._id, added.users.map((user) => user._id));
     res.json(added);
   }
 });
