@@ -3,7 +3,7 @@
 import axios from "axios";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useChat } from "@/context/ChatProvider";
-import { relayMessage } from "@/lib/previousApi";
+
 import type { Message, PendingMessage } from "@/app/type";
 
 type HistoryState = "loading" | "ready" | "error";
@@ -210,7 +210,6 @@ export function useConversation(chatId?: string) {
         const { data } = await axios.post<Message>("/api/message", { content, chatId });
         if (activeChat.current === chatId) setMessages((list) => appendMessage(list, data));
         showInList(data);
-        relayMessage(socket, data);
         return true;
       } catch {
         return false;
@@ -218,7 +217,7 @@ export function useConversation(chatId?: string) {
         setPending((list) => list.filter((item) => item.id !== id));
       }
     },
-    [chatId, socket, stopTyping, showInList]
+    [chatId, stopTyping, showInList]
   );
 
   // a stable array, so the message list can skip rendering while you type

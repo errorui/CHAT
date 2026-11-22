@@ -5,7 +5,7 @@ import React, { createContext, ReactNode, useCallback, useContext, useEffect, us
 import { usePathname, useRouter } from "next/navigation";
 import { io, Socket } from "socket.io-client";
 import { API_URL } from "@/lib/api";
-import { joinOwnRoom } from "@/lib/previousApi";
+
 import { User, Chat, Message } from "../app/type";
 
 type SessionState = "loading" | "unreachable" | "signed-in" | "signed-out";
@@ -212,7 +212,6 @@ const ChatProvider = ({ children }: { children: ReactNode }) => {
 
     client.on("connect", () => {
       setConnection("online");
-      joinOwnRoom(client, userId);
       // catch up on whatever happened while the socket was down
       if (connectedBefore) void refreshChats();
       connectedBefore = true;
