@@ -1,7 +1,7 @@
 import { avatarSrc } from '@/lib/avatar';
 import { API_URL } from '@/lib/api';
 import { useChat } from '@/context/ChatProvider';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { getSender, isLastMessage, isSameSender } from '../utils/getContact';
 import { Button } from '@/components/ui/button';
 import Groupheader from './Groupheader';
@@ -40,7 +40,8 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
   const [loading, setLoading] = useState(false);
   const [newMessage, setNewMessage] = useState("");
   const [socketConnected, setSocketConnected] = useState(false);
-  const [typing, setTyping] = useState(false);
+  const typingIn = useRef<string | null>(null);
+  const typingTimer = useRef<ReturnType<typeof setTimeout>>();
   const [typingChat, setTypingChat] = useState<string | null>(null);
   const [loadingChats, setLoadingChats] = useState(true); // Add loading state for chats
   const { user, selectedChat, setSelectedChat, notification, setNotification,chats } = useChat();
@@ -102,6 +103,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
     selectedChatcompare = selectedChat;
     setMessages([]);
     setNewMessage("");
+    stopTyping();
     if (selectedChat) {
       setLoadingChats(true);
       fetchMessages();
@@ -132,8 +134,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
 
   const sendMessage = async (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter" && !event.nativeEvent.isComposing && newMessage.trim()) {
-      socket?.emit("stop typing", selectedChat?._id);
-      setTyping(false);
+      stopTyping();
       const chatId = selectedChat?._id;
       try {
         setNewMessage("");
@@ -153,26 +154,24 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
     }
   };
 
+  function stopTyping() {
+    clearTimeout(typingTimer.current);
+    if (typingIn.current) socket?.emit("stop typing", typingIn.current);
+    typingIn.current = null;
+  }
+
   const typingHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewMessage(e.target.value);
-    if (!socketConnected) return;
+    if (!socketConnected || !selectedChat) return;
 
-    if (!typing) {
-      setTyping(true);
-      socket?.emit("typing", selectedChat?._id);
+    if (typingIn.current !== selectedChat._id) {
+      typingIn.current = selectedChat._id;
+      socket?.emit("typing", selectedChat._id);
     }
 
-    const lastTypingTime = new Date().getTime();
-    const typingTimeout = 3000;
-
-    setTimeout(() => {
-      const timeNow = new Date().getTime();
-      const timeDiff = timeNow - lastTypingTime;
-      if (timeDiff >= typingTimeout && typing) {
-        socket?.emit("stop typing", selectedChat?._id);
-        setTyping(false);
-      }
-    }, typingTimeout);
+    // counts from the last key press
+    clearTimeout(typingTimer.current);
+    typingTimer.current = setTimeout(stopTyping, 3000);
   };
   const handleAvatarClick = (user: User) => {
  
