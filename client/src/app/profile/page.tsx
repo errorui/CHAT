@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useChat } from "@/context/ChatProvider";
 import { useWakingUp } from "@/hooks/useWakingUp";
 import { Logo } from "../compontes/Logo";
+import { ProfileEmailForm } from "../compontes/ProfileEmailForm";
 import { ProfileNameForm } from "../compontes/ProfileNameForm";
 import { ProfilePhotoForm } from "../compontes/ProfilePhotoForm";
 
@@ -41,6 +42,7 @@ const ProfilePage = () => {
       <main className="mx-auto max-w-xl space-y-4 px-4 py-6 sm:py-8">
         <ProfilePhotoForm user={user} />
         <ProfileNameForm user={user} />
+        <ProfileEmailForm user={user} />
       </main>
     </div>
   );
