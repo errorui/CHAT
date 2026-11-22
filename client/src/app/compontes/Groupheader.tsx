@@ -22,12 +22,10 @@ import { User, Chat, Message } from '../type';
 
 interface GroupInfoProps {
   info: Chat;
-  fetchAgain: number;
-  setFetchAgain: React.Dispatch<React.SetStateAction<number>>;
 }
 
-function GroupInfo({ info, fetchAgain, setFetchAgain }: GroupInfoProps) {
-  const { user, selectedChat, setSelectedChat } = useChat();
+function GroupInfo({ info }: GroupInfoProps) {
+  const { user, selectedChat, setSelectedChat, refreshChats } = useChat();
   const router = useRouter();
   const [search, setSearch] = useState<string>("");
   const [group, setGroup] = useState<string>("");
@@ -63,7 +61,7 @@ function GroupInfo({ info, fetchAgain, setFetchAgain }: GroupInfoProps) {
         withCredentials: true
       });
       setSelectedChat(data);
-      setFetchAgain((value) => value + 1);
+      refreshChats();
     } catch (error) {
       console.log(error);
       alert("Error");
@@ -82,7 +80,7 @@ function GroupInfo({ info, fetchAgain, setFetchAgain }: GroupInfoProps) {
       }, {
         withCredentials: true
       });
-      setFetchAgain((value) => value + 1);
+      refreshChats();
       setSelectedChat(data);
     } catch (error) {
       alert("Error");
@@ -98,11 +96,11 @@ function GroupInfo({ info, fetchAgain, setFetchAgain }: GroupInfoProps) {
         withCredentials: true
       });
       if (user && user._id === user1._id) {
-        setFetchAgain((value) => value + 1);
+        refreshChats();
         setOpen(false);
         setSelectedChat(undefined);
       } else {
-        setFetchAgain((value) => value + 1);
+        refreshChats();
         setSelectedChat(data);
       }
     } catch (error) {
@@ -183,15 +181,13 @@ function GroupInfo({ info, fetchAgain, setFetchAgain }: GroupInfoProps) {
 
 interface GroupHeaderProps {
   group: Chat;
-  fetchAgain: number;
-  setFetchAgain: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const GroupHeader = ({ group, fetchAgain, setFetchAgain }: GroupHeaderProps) => {
+const GroupHeader = ({ group }: GroupHeaderProps) => {
   return (
     <div className="flex-grow-1 flex items-center justify-between">
       <h1>{group.chatName}</h1>
-      <GroupInfo fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} info={group} />
+      <GroupInfo info={group} />
     </div>
   );
 }

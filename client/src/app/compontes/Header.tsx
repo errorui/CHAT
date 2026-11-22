@@ -47,7 +47,7 @@ const Header = () => {
     user,
     notification,
     setNotification,
-    clearSession,
+    signOut,
     chats,
     setChats,
   } = useChat();
@@ -56,17 +56,10 @@ const Header = () => {
     const router = useRouter();
     const logout = async () => {
         try {
-          
-          await axios.get(`/api/user/logout`,  { withCredentials: true });
+          await signOut();
           toast({
             title: "logout succesfully",
-         
           })
-          clearSession()
-          router.replace('/')
-         
-       
-      
         } catch (error) {
           console.error('Error logging out:', error);
         }

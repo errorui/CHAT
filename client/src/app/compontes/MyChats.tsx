@@ -24,9 +24,7 @@ import { getSender } from '../utils/getContact';
 import MakeGroup from './MakeGroup';
 
 
-const MyChats = ({fetchAgain}:{
-  fetchAgain:any
-}) => {
+const MyChats = () => {
 
 
 
@@ -39,32 +37,6 @@ const MyChats = ({fetchAgain}:{
     chats,
     setChats,
   } = useChat();
-  useLayoutEffect(()=>{
-    let cancelled=false
-    const listed=new Set(chats.map((chat)=>chat._id))
-    const fetchChats=async()=>{
-      try {
-
-           let {data}=  await axios.get(`/api/chat`, { withCredentials: true });
-           
-           if(cancelled) return
-           setChats(data)
-           // update the open chat, or close it if we were removed from it
-           setSelectedChat((open)=>open&&((data as Chat[]).find((chat)=>chat._id===open._id)??(listed.has(open._id)?undefined:open)))
-      } catch (error) {
-        toast({
-          variant: "destructive",
-          title: "something went wrong",
-          action: <ToastAction altText="Try again">Try different email</ToastAction>,
-         
-        })
-      }
-    }
-  
-    fetchChats()
-    return ()=>{ cancelled=true }
-  },[fetchAgain])
-
   const { toast } = useToast()
  
   return (

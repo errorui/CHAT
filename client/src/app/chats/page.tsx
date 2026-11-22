@@ -12,13 +12,12 @@ import Header from '../compontes/Header';
 
 const page = () => {
   let {user}=useChat()
-  const [fetchAgain, setFetchAgain] = useState(0);
   return (
     <div className='flex h-dvh w-full flex-col overflow-hidden'>
       {user&&<Header></Header>}
      <Card className='flex min-h-0 w-full flex-1 p-2 sm:p-5'>
-      {user &&<MyChats fetchAgain={fetchAgain}></MyChats>}
-      {user &&<ChatBox fetchAgain={fetchAgain} setFetchAgain={setFetchAgain}></ChatBox>}
+      {user &&<MyChats></MyChats>}
+      {user &&<ChatBox></ChatBox>}
 
      </Card>
     </div>

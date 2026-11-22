@@ -1,104 +1,246 @@
 "use client";
 
 import axios from "axios";
-import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import { User, Chat, Message } from '../app/type';
+import React, { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { io, Socket } from "socket.io-client";
+import { API_URL } from "@/lib/api";
+import { joinOwnRoom } from "@/lib/previousApi";
+import { User, Chat, Message } from "../app/type";
 
+type SessionState = "loading" | "unreachable" | "signed-in" | "signed-out";
+type ListState = "loading" | "ready" | "error";
+type ConnectionState = "connecting" | "online" | "offline";
 
 type ContextType = {
   user: User | null;
-  setUser: React.Dispatch<React.SetStateAction<User | null>>;
+  session: SessionState;
+  signOut: () => Promise<void>;
   selectedChat: Chat | undefined;
   setSelectedChat: React.Dispatch<React.SetStateAction<Chat | undefined>>;
   chats: Chat[];
-  setChats:  React.Dispatch<React.SetStateAction<Chat[]>>;
+  setChats: React.Dispatch<React.SetStateAction<Chat[]>>;
+  chatsState: ListState;
+  refreshChats: () => Promise<void>;
+  openDirectChat: (userId: string) => Promise<void>;
+  showInList: (message: Message) => void;
   notification: Message[];
   setNotification: React.Dispatch<React.SetStateAction<Message[]>>;
-  clearSession: () => void;
+  socket: Socket | null;
+  connection: ConnectionState;
 };
 
 const ChatContext = createContext<ContextType | undefined>(undefined);
 
+const fetchSessionUser = async () => {
+  try {
+    const { data } = await axios.get<User>("/api/user/user");
+    return data;
+  } catch (error) {
+    // only a 401 means signed out, anything else is a temporary failure
+    return axios.isAxiosError(error) && error.response?.status === 401 ? null : undefined;
+  }
+};
+
 const ChatProvider = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
-  const [user, setUser] = useState<User | null>(null);
-  const [selectedChat, setSelectedChat] = useState<Chat | undefined>(undefined);
-  const [notification, setNotification] = useState<Message[]>([]);
-  const [chats, setChats] = useState<Chat[]>([]);
   const router = useRouter();
 
-  const getUser = async () => {
-    try {
-      const response = await axios.get(`/api/user/user`, {
-        withCredentials: true,
-      });
-      return response.data as User;
-    } catch (error) {
-      // only a 401 means signed out, anything else is a temporary failure
-      return axios.isAxiosError(error) && error.response?.status === 401 ? null : undefined;
-    }
-  };
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<SessionState>("loading");
+  const [selectedChat, setSelectedChat] = useState<Chat | undefined>(undefined);
+  const [chats, setChats] = useState<Chat[]>([]);
+  const [chatsState, setChatsState] = useState<ListState>("loading");
+  const [notification, setNotification] = useState<Message[]>([]);
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const [connection, setConnection] = useState<ConnectionState>("connecting");
+
+  // the socket handlers outlive renders, so they read these instead of state
+  const openChatId = useRef<string | undefined>(undefined);
+  const knownChats = useRef<Chat[]>([]);
+  const listRequest = useRef(0);
+  const listLoading = useRef(false);
+
+  const userId = user?._id;
+  const selectedId = selectedChat?._id;
+
+  useEffect(() => {
+    knownChats.current = chats;
+  }, [chats]);
 
   // nothing of one account may survive into the next one on the same browser
-  const clearSession = () => {
+  const clearSession = useCallback(() => {
+    listRequest.current += 1; // drops a list response that is still on its way
+    listLoading.current = false;
     setUser(null);
     setSelectedChat(undefined);
     setChats([]);
+    setChatsState("loading");
     setNotification([]);
-  };
+  }, []);
 
+  const refreshChats = useCallback(async () => {
+    const request = ++listRequest.current;
+    const known = new Set(knownChats.current.map((chat) => chat._id));
+    listLoading.current = true;
+    try {
+      const { data } = await axios.get<Chat[]>("/api/chat");
+      if (request !== listRequest.current) return;
+      setChats(data);
+      setChatsState("ready");
+      // update the open chat, or close it if we were removed from it
+      setSelectedChat(
+        (open) => open && (data.find((chat) => chat._id === open._id) ?? (known.has(open._id) ? undefined : open))
+      );
+    } catch {
+      if (request === listRequest.current) setChatsState((state) => (state === "ready" ? state : "error"));
+    } finally {
+      if (request === listRequest.current) listLoading.current = false;
+    }
+  }, []);
+
+  const showInList = useCallback((message: Message) => {
+    const chatId = message.chat._id;
+    setChats((list) => {
+      const chat = list.find((item) => item._id === chatId);
+      if (!chat) return list;
+      const updated = { ...chat, lastmessage: message, updatedAt: message.createdAt };
+      return [updated, ...list.filter((item) => item._id !== chatId)];
+    });
+  }, []);
+
+  const openDirectChat = useCallback(
+    async (otherId: string) => {
+      const { data } = await axios.post<Chat>("/api/chat", { userId: otherId });
+      setChats((list) => (list.some((chat) => chat._id === data._id) ? list : [data, ...list]));
+      setSelectedChat(data);
+      void refreshChats();
+    },
+    [refreshChats]
+  );
+
+  const signOut = useCallback(async () => {
+    await axios.get("/api/user/logout");
+    clearSession();
+    setSession("signed-out");
+    router.replace("/");
+  }, [clearSession, router]);
+
+  // who is signed in
   useEffect(() => {
     let cancelled = false;
     let retry: ReturnType<typeof setTimeout>;
-    const fetchUser = async () => {
-      const res = await getUser();
+
+    const check = async () => {
+      const result = await fetchSessionUser();
       if (cancelled) return;
-      if (res === undefined) {
-        retry = setTimeout(fetchUser, 3000);
-        return;
-      }
-      if (!res) {
+      if (result === undefined) {
+        setSession((state) => (state === "signed-in" ? state : "unreachable"));
+        retry = setTimeout(check, 3000);
+      } else if (result === null) {
         clearSession();
-
-        router.push('/');
+        setSession("signed-out");
+        if (pathname !== "/") router.replace("/");
       } else {
-
-        setUser(res);
+        setUser(result);
+        setSession("signed-in");
       }
     };
 
-    fetchUser();
+    void check();
     return () => {
       cancelled = true;
       clearTimeout(retry);
     };
-  }, [pathname]);
+  }, [pathname, clearSession, router]);
 
   useEffect(() => {
-    if (!selectedChat) return;
-    setNotification((list) => list.filter((item) => item.chat._id !== selectedChat._id));
-  }, [selectedChat?._id]);
+    if (userId) void refreshChats();
+  }, [userId, refreshChats]);
+
+  useEffect(() => {
+    openChatId.current = selectedId;
+    if (selectedId) setNotification((list) => list.filter((item) => item.chat._id !== selectedId));
+  }, [selectedId]);
+
+  // one realtime connection per signed in account
+  useEffect(() => {
+    if (!userId) return;
+
+    const client = io(API_URL, {
+      // the login cookie belongs to this site, so fetch a short lived ticket for the socket
+      auth: (done) => {
+        axios.get("/api/user/socket-token").then(({ data }) => done(data)).catch(() => done({}));
+      },
+    });
+    let retry: ReturnType<typeof setTimeout>;
+    let connectedBefore = false;
+
+    client.on("connect", () => {
+      setConnection("online");
+      joinOwnRoom(client, userId);
+      // catch up on whatever happened while the socket was down
+      if (connectedBefore) void refreshChats();
+      connectedBefore = true;
+    });
+    client.on("disconnect", () => setConnection("offline"));
+    client.on("connect_error", () => {
+      setConnection("offline");
+      // socket.io doesn't retry by itself when the server refuses the connection
+      if (!client.active) retry = setTimeout(() => client.connect(), 5000);
+    });
+
+    client.on("chats changed", () => void refreshChats());
+
+    client.on("message received", (message: Message) => {
+      const chatId = message.chat._id;
+      void refreshChats();
+      // a chat we don't have yet, or a list response that predates this message
+      if (listLoading.current || !knownChats.current.some((chat) => chat._id === chatId)) void refreshChats();
+
+      // the sender's other tabs get the message too, but don't need a notification
+      if (message.sender?._id !== userId && openChatId.current !== chatId) {
+        setNotification((list) => (list.some((item) => item._id === message._id) ? list : [...list, message]));
+      }
+    });
+
+    setSocket(client);
+    return () => {
+      clearTimeout(retry);
+      client.removeAllListeners();
+      client.disconnect();
+      setSocket(null);
+      setConnection("connecting");
+    };
+  }, [userId, refreshChats, showInList]);
 
   return (
-    <ChatContext.Provider value={{
-      selectedChat,
-      setSelectedChat,
-      user,
-      setUser,
-      notification,
-      setNotification,
-      chats,
-      setChats,
-      clearSession,
-    }}>
+    <ChatContext.Provider
+      value={{
+        user,
+        session,
+        signOut,
+        selectedChat,
+        setSelectedChat,
+        chats,
+        setChats,
+        chatsState,
+        refreshChats,
+        openDirectChat,
+        showInList,
+        notification,
+        setNotification,
+        socket,
+        connection,
+      }}
+    >
       {children}
     </ChatContext.Provider>
   );
 };
 
 const useChat = () => {
-  let context = useContext(ChatContext);
+  const context = useContext(ChatContext);
   if (context === undefined) {
     throw new Error("useChat must be used within a ChatProvider");
   }
