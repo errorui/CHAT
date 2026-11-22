@@ -9,5 +9,6 @@ const messageSchema=mongoose.Schema({
 },{
     timestamps:true
 })
+messageSchema.index({chat:1,createdAt:1})
 const messageModel=mongoose.model("message",messageSchema);
 module.exports={messageModel}
