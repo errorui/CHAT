@@ -13,7 +13,7 @@ const clientKey = (req) => {
   return ipKeyGenerator(forwarded || req.socket.remoteAddress || "unknown");
 };
 
-const limitFailedLogins = (limit, key) =>
+const limitFailedLogins = (limit, key, failedStatus = 401, what = "sign-in") =>
   rateLimit({
     windowMs: WINDOW_MINUTES * 60 * 1000,
     limit,
@@ -21,14 +21,17 @@ const limitFailedLogins = (limit, key) =>
     keyGenerator: (req) => crypto.createHash("sha256").update(key(req)).digest("base64url"),
     // counted on arrival so parallel guesses can't slip through, refunded unless the password was wrong
     skipSuccessfulRequests: true,
-    requestWasSuccessful: (req, res) => res.statusCode !== 401,
+    requestWasSuccessful: (req, res) => res.statusCode !== failedStatus,
     standardHeaders: "draft-7",
     legacyHeaders: false,
-    message: { message: `Too many sign-in attempts. Try again in ${WINDOW_MINUTES} minutes.` },
+    message: { message: `Too many ${what} attempts. Try again in ${WINDOW_MINUTES} minutes.` },
   });
 
 const limitLoginPerClient = limitFailedLogins(10, (req) => `${accountKey(req)}|${clientKey(req)}`);
 // the header can be forged by calling the api directly, so the account has a ceiling of its own
 const limitLoginPerAccount = limitFailedLogins(50, accountKey);
 
-module.exports = { limitLoginPerClient, limitLoginPerAccount };
+// 403, because the client treats any 401 as an expired session
+const limitPasswordChecks = limitFailedLogins(10, (req) => `check:${req.user._id}`, 403, "password");
+
+module.exports = { limitLoginPerClient, limitLoginPerAccount, limitPasswordChecks };
