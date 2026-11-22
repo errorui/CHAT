@@ -4,6 +4,11 @@ const { generateToken } = require("../config/generateToken");
 
 const upload = require("../config/multer-config");
 const userModel = require("../models/userModel");
+// exact match first, then ignore case for accounts saved with capitals
+const findUserByEmail = async (email) =>
+  (await userModel.findOne({ email })) ||
+  (await userModel.findOne({ email }).collation({ locale: "en", strength: 2 }));
+
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
   const ProfilePic = req.file ? req.file.buffer.toString("base64") : undefined;
@@ -16,7 +21,8 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new Error("Please Enter all the Fields");
   }
 
-  const userExists = await userModel.findOne({ email });
+  const normalizedEmail = email.trim().toLowerCase();
+  const userExists = await findUserByEmail(normalizedEmail);
 
   if (userExists) {
     return res.status(400).json({ err: "user already exists" });
@@ -26,7 +32,7 @@ const registerUser = asyncHandler(async (req, res) => {
   try {
     user = await userModel.create({
       name,
-      email,
+      email: normalizedEmail,
       password,
       ProfilePic,
     });
@@ -65,7 +71,7 @@ const authUser = asyncHandler(async (req, res) => {
     throw new Error("Please enter email and password");
   }
 
-  const user = await usermodel.findOne({ email });
+  const user = await findUserByEmail(email.trim());
 
   if (user && (await user.matchPassword(password))) {
     let token=generateToken(user._id)
