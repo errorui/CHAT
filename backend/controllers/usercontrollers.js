@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const usermodel = require("../models/userModel");
 const { generateToken } = require("../config/generateToken");
+const { setAuthCookie } = require("../config/authCookie");
 
 const upload = require("../config/multer-config");
 const userModel = require("../models/userModel");
@@ -48,12 +49,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
   if (user) {
     let token = generateToken(user._id);
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: true, 
-      expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-      sameSite: "none", 
-    });
+    setAuthCookie(res, token);
 
     req.user = user;
     return res.status(200).json({
@@ -77,12 +73,7 @@ const authUser = asyncHandler(async (req, res) => {
 
   if (user && (await user.matchPassword(password))) {
     let token=generateToken(user._id)
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: true, // Only send cookie over HTTPS
-      expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // Expires in 2 days
-      sameSite: "none", // Requires HTTPS and ensures cross-site request forgery (CSRF) protection
-    });
+    setAuthCookie(res, token);
 
     
     req.user=user
