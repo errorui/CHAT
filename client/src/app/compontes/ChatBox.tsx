@@ -29,6 +29,10 @@ let socket: Socket<DefaultEventsMap, DefaultEventsMap> | null = null;
 let selectedChatcompare: Chat;
 
 
+// a sent message arrives twice: in the http response and over the socket
+const appendMessage = (list: Message[], message: Message) =>
+  list.some((item) => item._id === message._id) ? list : [...list, message];
+
 const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain: any }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
@@ -69,11 +73,14 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
 
     socket.on("message received", (newMessageReceived) => {
       if (!selectedChatcompare || selectedChatcompare._id !== newMessageReceived.chat._id) {
-        setNotification((prevNotifications) => [...prevNotifications, newMessageReceived]);
+        // the sender's other tabs get the message too, but don't need a notification
+        if (newMessageReceived.sender?._id !== user._id) {
+          setNotification((prevNotifications) => [...prevNotifications, newMessageReceived]);
+        }
         setFetchAgain(!fetchAgain);
         return;
       };
-      setMessages((prevMessages) => [...prevMessages, newMessageReceived]);
+      setMessages((prevMessages) => appendMessage(prevMessages, newMessageReceived));
     });
 
     return () => {
@@ -118,8 +125,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
         }, {
           withCredentials: true,
         });
-        setMessages((prevMessages) => [...prevMessages, data]);
-        socket?.emit("message", data);
+        setMessages((prevMessages) => appendMessage(prevMessages, data));
       } catch (error) {
         console.log(error);
       }

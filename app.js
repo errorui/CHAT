@@ -77,4 +77,4 @@ const server = app.listen(
   () => console.log(`Server running on PORT ${PORT}...`)
 );
 
-createSocketServer(server, origin);
+app.set('io', createSocketServer(server, origin));

@@ -3,6 +3,7 @@ const { messageModel } = require("../models/messageMode");
 const userModel = require("../models/userModel");
 const chatModel = require("../models/chatModel");
 const { getMemberChat } = require("../utils/chatAccess");
+const { emitToUsers } = require("../socket");
 
 
 
@@ -13,7 +14,7 @@ const sendMesage=asyncHandler(async(req,res)=>{
     res.status(400)
     throw new Error("Message cannot be empty")
    }
-   await getMemberChat(req,res,chatId)
+   const chat=await getMemberChat(req,res,chatId)
    let newMessage={
     sender:req.user._id,
     content:content,
@@ -30,6 +31,7 @@ const sendMesage=asyncHandler(async(req,res)=>{
         lastmessage:message._id,
     })
 
+    emitToUsers(req.app.get("io"),chat.users,"message received",message)
     res.json(message)
 
 })

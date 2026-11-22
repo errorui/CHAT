@@ -36,18 +36,17 @@ const createSocketServer = (server, origin) => {
       socket.in(room).emit("stop typing");
     });
 
-    socket.on("message", (newMessageReceived) => {
-      const chat = newMessageReceived?.chat;
-      if (!Array.isArray(chat?.users)) return;
-
-      chat.users.forEach((user) => {
-        if (typeof user?._id !== "string" || user._id === newMessageReceived.sender?._id) return;
-        socket.in(user._id).emit("message received", newMessageReceived);
-      });
-    });
   });
 
   return io;
 };
 
-module.exports = { createSocketServer };
+const emitToUsers = (io, userIds, event, data) => {
+  const rooms = userIds.map(String);
+  // io.to([]) would broadcast to every connected socket
+  if (!rooms.length) return;
+  // plain json, socket.io doesn't understand mongoose documents
+  io.to(rooms).emit(event, JSON.parse(JSON.stringify(data)));
+};
+
+module.exports = { createSocketServer, emitToUsers };
