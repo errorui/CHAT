@@ -1,107 +1,61 @@
-"use client"
+"use client";
 
-import React from 'react'
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input"
-import {
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-  } from "@/components/ui/form";
-
-import { useToast } from '@/components/ui/use-toast'
-import { ToastAction } from '@/components/ui/toast'
 import axios from "axios";
-import { useRouter } from 'next/navigation'
+import React, { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { errorMessage } from "@/lib/errors";
+import { PasswordInput } from "./PasswordInput";
 
+const formSchema = z.object({
+  // not z.email(): its stricter rules could lock out accounts that already exist
+  email: z.string().trim().min(1, "Enter your email").regex(/^\S+@\S+$/, "Enter a valid email address"),
+  password: z.string().min(1, "Enter your password"),
+});
 
-
- const formSchema = z.object({
-    email: z.string().min(2, {
-      message: "enter login",
-    }).email("Invalid email"),
-    password: z.string()
+const LoginForm = () => {
+  const router = useRouter();
+  const [failure, setFailure] = useState<string>();
+  const [done, setDone] = useState(false);
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: { email: "", password: "" },
   });
-const LoginUser = async (credentials: z.infer<typeof formSchema>) => {
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setFailure(undefined);
     try {
-      const response = await axios.post(`/api/user/login`, credentials,{
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        withCredentials:true
-      } );
-  
-  
-      return response.data;
-    } catch (error: any) {
-      let status = error?.response?.status;
-      console.log(error)
-      if (status === 400) {
-        
-        return "Invalid email";
-      } else if(status===401) {
-        return "Invalid credentials";
-      }
-      else{
-        return "server error"
-      }
+      await axios.post("/api/user/login", values);
+      setDone(true);
+      router.replace("/chats");
+    } catch (error) {
+      setFailure(
+        axios.isAxiosError(error) && error.response?.status === 401
+          ? "That email and password don't match."
+          : errorMessage(error)
+      );
     }
   };
-const LoginForm = () => {
-  const router=useRouter();
-  const { toast } = useToast()
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
-        defaultValues: { email: "", password: "" },
-       
-      })
-      async function onSubmit(values: z.infer<typeof formSchema>) {
-       
-        let result=await LoginUser(values);
-        // every failure comes back as a string
-        if(typeof result==="string"){
-          toast({
-            variant: "destructive",
-            title: result,
-           
-          })
-   
-        }
-        else{
-          toast({
-            title: "user login succesfully",
-            action: <ToastAction altText="Try again">X</ToastAction>,
-          })
-          router.push('/chats')
-        }
-        
-        
-      };
-  return (
-  
 
-      
-        <>
-        <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className=" w-full">
-        <div className="space-y-4">
+  const busy = form.formState.isSubmitting || done;
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="space-y-4">
         <FormField
           control={form.control}
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel >email</FormLabel>
+              <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="email" {...field} />
+                <Input type="email" autoComplete="email" placeholder="you@example.com" {...field} />
               </FormControl>
-             
               <FormMessage />
             </FormItem>
           )}
@@ -111,26 +65,27 @@ const LoginForm = () => {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>password</FormLabel>
+              <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input type="password" autoComplete="current-password" placeholder="password" {...field} />
+                <PasswordInput autoComplete="current-password" {...field} />
               </FormControl>
-             
               <FormMessage />
             </FormItem>
           )}
         />
-        </div>
-       
-   
-        
-        <Button className="w-full mt-8 " type="submit">sign in</Button>
+
+        {failure && (
+          <p role="alert" className="rounded-xl bg-destructive/10 px-4 py-3 text-sm font-medium text-destructive">
+            {failure}
+          </p>
+        )}
+
+        <Button type="submit" size="lg" className="w-full" disabled={busy}>
+          {busy ? "Signing in…" : "Sign in"}
+        </Button>
       </form>
     </Form>
-        </>
-       
-   
-  )
-}
+  );
+};
 
-export default LoginForm
+export default LoginForm;
