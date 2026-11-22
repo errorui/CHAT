@@ -43,17 +43,6 @@ app.use('/api/message', messageRoute);
 
 app.use(notFound);
 app.use(errorHandler);
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", origin);
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-  next();
-});
-app.options('*', cors({
-  origin:origin,
-  credentials: true
-}));
 
 const PORT = process.env.PORT || 4000;
 
