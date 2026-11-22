@@ -48,6 +48,10 @@ const registerUser = asyncHandler(async (req, res) => {
 const authUser = asyncHandler(async (req, res) => {
 
   const { email, password } = req.body;
+  if (typeof email !== "string" || typeof password !== "string" || !email || !password) {
+    res.status(400);
+    throw new Error("Please enter email and password");
+  }
 
   const user = await usermodel.findOne({ email });
 
