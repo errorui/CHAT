@@ -37,6 +37,7 @@ function GroupInfo({ info, fetchAgain, setFetchAgain }: GroupInfoProps) {
   const handleSearch = async (query: string) => {
     setSearch(query);
     if (query === "") {
+      setSearchResults([]);
       return;
     }
     try {

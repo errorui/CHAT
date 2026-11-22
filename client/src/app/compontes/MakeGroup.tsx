@@ -38,6 +38,7 @@ const MakeGroup = () => {
     const handleSearch=async(query:string)=>{
         setsearch(query)
         if(query===""){
+            setsearchresults([]);
             return;
         }
         try {
