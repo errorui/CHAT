@@ -39,7 +39,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
   const [newMessage, setNewMessage] = useState("");
   const [socketConnected, setSocketConnected] = useState(false);
   const [typing, setTyping] = useState(false);
-  const [istyping, setIsTyping] = useState(false);
+  const [typingChat, setTypingChat] = useState<string | null>(null);
   const [loadingChats, setLoadingChats] = useState(true); // Add loading state for chats
   const { user, selectedChat, setSelectedChat, notification, setNotification,chats } = useChat();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -63,12 +63,12 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
       if (!connection.active) retry = setTimeout(() => connection.connect(), 5000);
     });
 
-    socket.on("typing", () => {
-      setIsTyping(true);
+    socket.on("typing", ({ chatId }: { chatId: string }) => {
+      setTypingChat(chatId);
     });
 
-    socket.on("stop typing", () => {
-      setIsTyping(false);
+    socket.on("stop typing", ({ chatId }: { chatId: string }) => {
+      setTypingChat((current) => (current === chatId ? null : current));
     });
 
     socket.on("message received", (newMessageReceived) => {
@@ -237,7 +237,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
               })}
             </div>
             <div className="">
-              {istyping && <h1 className='text-3xl'>Typing...</h1>}
+              {typingChat !== null && typingChat === selectedChat?._id && <h1 className='text-3xl'>Typing...</h1>}
             </div>
             <div className="flex">
               <Input placeholder='Enter your message' value={newMessage} onKeyDown={sendMessage} onChange={typingHandler} className="border-2 border-black"></Input>

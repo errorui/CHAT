@@ -37,12 +37,12 @@ const createSocketServer = (server, origin) => {
 
     socket.on("typing", (room) => {
       if (!socket.rooms.has(room)) return;
-      socket.in(room).emit("typing");
+      socket.in(room).emit("typing", { chatId: room });
     });
 
     socket.on("stop typing", (room) => {
       if (!socket.rooms.has(room)) return;
-      socket.in(room).emit("stop typing");
+      socket.in(room).emit("stop typing", { chatId: room });
     });
 
   });
