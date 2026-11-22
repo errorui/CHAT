@@ -8,6 +8,8 @@ const apiUrl = (
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // without this, next dev writes AGENTS.md into the project
+  agentRules: false,
   // this folder is the app, the lockfile above it belongs to the api
   turbopack: { root: import.meta.dirname },
   env: { NEXT_PUBLIC_API_URL: apiUrl },
