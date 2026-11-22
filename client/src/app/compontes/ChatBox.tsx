@@ -28,7 +28,7 @@ const ChatBox = () => {
   const { user, selectedChat } = useChat();
   const { toast } = useToast();
   const chatId = selectedChat?._id;
-  const { messages, history, retryHistory, pending, typingIds, notifyTyping, stopTyping, send } =
+  const { messages, history, retryHistory, hasOlder, older, loadOlder, pending, typingIds, notifyTyping, stopTyping, send } =
     useConversation(chatId);
   // one draft per chat, so text can never follow you into another conversation
   const [drafts, setDrafts] = useState<Record<string, string>>({});
@@ -77,6 +77,9 @@ const ChatBox = () => {
         pending={pending}
         history={history}
         onRetry={retryHistory}
+        hasOlder={hasOlder}
+        older={older}
+        onLoadOlder={loadOlder}
         typing={typing}
       />
       <Composer

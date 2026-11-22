@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useChat } from "@/context/ChatProvider";
 import { chatTitle } from "@/lib/chat";
 import { formatDay, formatTime } from "@/lib/format";
+import type { OlderState } from "@/hooks/useConversation";
 import { cn } from "@/lib/utils";
 import ProfileModal from "./ProfileModal";
 import { UserAvatar } from "./UserAvatar";
@@ -13,6 +14,13 @@ import { Chat, Message, PendingMessage } from "../type";
 
 const RUN_GAP = 5 * 60 * 1000;
 const NEAR_BOTTOM = 80; // px
+const NEAR_TOP = 120; // px, where the previous page starts loading
+
+const OLDER_LABEL: Record<OlderState, string> = {
+  idle: "Show earlier messages",
+  loading: "Loading earlier messages…",
+  error: "Couldn't load earlier messages. Try again",
+};
 
 const sameDay = (a: Message, b: Message) =>
   new Date(a.createdAt).toDateString() === new Date(b.createdAt).toDateString();
@@ -33,20 +41,36 @@ type Props = {
   pending: PendingMessage[];
   history: "loading" | "ready" | "error";
   onRetry: () => void;
+  hasOlder: boolean;
+  older: OlderState;
+  onLoadOlder: () => void;
   typing: string | null;
 };
 
 // memo, otherwise every key press in the composer re-renders the whole history
-export const MessageList = React.memo(function MessageList({ chat, messages, pending, history, onRetry, typing }: Props) {
+export const MessageList = React.memo(function MessageList({
+  chat,
+  messages,
+  pending,
+  history,
+  onRetry,
+  hasOlder,
+  older,
+  onLoadOlder,
+  typing,
+}: Props) {
   const { user } = useChat();
   const scroller = useRef<HTMLDivElement>(null);
   const content = useRef<HTMLDivElement>(null);
   const atBottom = useRef(true);
-  const previous = useRef({ last: "", pending: 0 });
+  const previous = useRef({ first: "", last: "", pending: 0 });
+  // stays the same when messages are added above, so it marks the reader's place
+  const fromBottom = useRef(0);
   const [showJump, setShowJump] = useState(false);
 
   const last = messages[messages.length - 1];
   const lastId = last?._id ?? "";
+  const firstId = messages[0]?._id ?? "";
   const lastIsMine = !!last && last.sender?._id === user?._id;
 
   const toBottom = useCallback(() => {
@@ -58,14 +82,20 @@ export const MessageList = React.memo(function MessageList({ chat, messages, pen
   }, []);
 
   useLayoutEffect(() => {
+    const list = scroller.current;
     const arrived = previous.current.last !== lastId;
+    const prepended = previous.current.first !== firstId;
     const sending = pending.length > previous.current.pending;
-    previous.current = { last: lastId, pending: pending.length };
+    previous.current = { first: firstId, last: lastId, pending: pending.length };
 
     // follow along, but never pull someone away from older messages they are reading
     if (atBottom.current || sending || (arrived && lastIsMine)) toBottom();
-    else if (arrived) setShowJump(true);
-  }, [lastId, lastIsMine, pending.length, typing, history, toBottom]);
+    else {
+      if (prepended && list) list.scrollTop = list.scrollHeight - fromBottom.current;
+      if (arrived) setShowJump(true);
+    }
+    if (list) fromBottom.current = list.scrollHeight - list.scrollTop;
+  }, [firstId, lastId, lastIsMine, pending.length, typing, history, toBottom]);
 
   // the composer growing, or a phone keyboard, shrinks the list
   useEffect(() => {
@@ -81,8 +111,11 @@ export const MessageList = React.memo(function MessageList({ chat, messages, pen
   const onScroll = () => {
     const list = scroller.current;
     if (!list) return;
-    atBottom.current = list.scrollHeight - list.scrollTop - list.clientHeight < NEAR_BOTTOM;
+    fromBottom.current = list.scrollHeight - list.scrollTop;
+    atBottom.current = fromBottom.current - list.clientHeight < NEAR_BOTTOM;
     if (atBottom.current) setShowJump(false);
+    // only from idle: after a failure it waits for a click instead of retrying on every scroll
+    else if (hasOlder && older === "idle" && list.scrollTop < NEAR_TOP) onLoadOlder();
   };
 
   const empty = history === "ready" && !messages.length && !pending.length;
@@ -94,7 +127,7 @@ export const MessageList = React.memo(function MessageList({ chat, messages, pen
         onScroll={onScroll}
         role="log"
         aria-label="Messages"
-        aria-busy={history === "loading"}
+        aria-busy={history === "loading" || older === "loading"}
         tabIndex={0}
         className="h-full overflow-y-auto overflow-x-hidden overscroll-contain focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
       >
@@ -125,6 +158,14 @@ export const MessageList = React.memo(function MessageList({ chat, messages, pen
                 {chat.isGroupChat ? `Welcome to ${chat.chatName}` : `Say hello to ${chatTitle(user, chat)}`}
               </p>
               <p className="mt-1 text-sm text-muted-foreground">There are no messages here yet.</p>
+            </div>
+          )}
+
+          {hasOlder && messages.length > 0 && (
+            <div className="flex h-10 shrink-0 items-center justify-center">
+              <Button variant="ghost" size="sm" onClick={onLoadOlder} aria-disabled={older === "loading"}>
+                {OLDER_LABEL[older]}
+              </Button>
             </div>
           )}
 

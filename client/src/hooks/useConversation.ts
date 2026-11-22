@@ -7,7 +7,9 @@ import { relayMessage } from "@/lib/previousApi";
 import type { Message, PendingMessage } from "@/app/type";
 
 type HistoryState = "loading" | "ready" | "error";
+export type OlderState = "idle" | "loading" | "error";
 
+const PAGE_SIZE = 50;
 const STOP_TYPING_AFTER = 3000; // since the last key press
 const REPEAT_TYPING_EVERY = 2000;
 const FORGET_TYPING_AFTER = 5000; // in case a "stop typing" never arrives
@@ -15,6 +17,15 @@ const FORGET_TYPING_AFTER = 5000; // in case a "stop typing" never arrives
 // a sent message arrives twice: in the http response and over the socket
 const appendMessage = (list: Message[], message: Message) =>
   list.some((item) => item._id === message._id) ? list : [...list, message];
+
+// createdAt is always an ISO string, so it sorts as text
+const byTime = (a: Message, b: Message) => {
+  if (a.createdAt !== b.createdAt) return a.createdAt < b.createdAt ? -1 : 1;
+  return a._id < b._id ? -1 : a._id > b._id ? 1 : 0;
+};
+
+const mergeMessages = (...lists: Message[][]) =>
+  Array.from(new Map(lists.flat().map((message) => [message._id, message])).values()).sort(byTime);
 
 let pendingCount = 0;
 
@@ -26,6 +37,15 @@ export function useConversation(chatId?: string) {
   const [history, setHistory] = useState<HistoryState>("loading");
   const [pending, setPending] = useState<PendingMessage[]>([]);
   const [typingIds, setTypingIds] = useState<string[]>([]);
+  const [hasOlder, setHasOlder] = useState(false);
+  const [older, setOlder] = useState<OlderState>("idle");
+
+  // what is on screen, for responses that come back later
+  const shown = useRef<Message[]>([]);
+  const loadingOlder = useRef(false);
+  useLayoutEffect(() => {
+    shown.current = messages;
+  }, [messages]);
 
   const activeChat = useRef<string | undefined>(undefined);
   const typingTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -34,14 +54,48 @@ export function useConversation(chatId?: string) {
   const loadHistory = useCallback(async () => {
     if (!chatId) return;
     try {
-      const { data } = await axios.get<Message[]>(`/api/message/${chatId}`);
+      const { data } = await axios.get<Message[]>(`/api/message/${chatId}`, { params: { limit: PAGE_SIZE } });
       // another chat was opened while this one was loading
       if (activeChat.current !== chatId) return;
-      // keep anything that arrived over the socket meanwhile
-      setMessages((arrived) => arrived.reduce(appendMessage, data));
+
+      const fullPage = data.length === PAGE_SIZE;
+      // a full page with nothing we already had: there may be messages missing in between
+      const gap = fullPage && !shown.current.some((message) => message._id === data[0]._id);
+
+      // keep anything that arrived over the socket meanwhile, but nothing from before a gap
+      setMessages((current) =>
+        mergeMessages(gap ? current.filter((message) => byTime(message, data[0]) > 0) : current, data)
+      );
+      if (!fullPage) setHasOlder(false);
+      else if (gap) setHasOlder(true);
       setHistory("ready");
     } catch {
       if (activeChat.current === chatId) setHistory((state) => (state === "ready" ? state : "error"));
+    }
+  }, [chatId]);
+
+  const loadOlder = useCallback(async () => {
+    const oldest = shown.current[0];
+    if (!chatId || !oldest || loadingOlder.current) return;
+
+    loadingOlder.current = true;
+    setOlder("loading");
+    try {
+      const { data } = await axios.get<Message[]>(`/api/message/${chatId}`, {
+        params: { limit: PAGE_SIZE, before: oldest._id },
+      });
+      if (activeChat.current !== chatId) return;
+      // the list restarted after a gap meanwhile, so this page no longer joins up
+      if (shown.current[0]?._id === oldest._id) {
+        const addsSomething = data.some((message) => !shown.current.some((item) => item._id === message._id));
+        setMessages((current) => mergeMessages(data, current));
+        if (data.length < PAGE_SIZE || !addsSomething) setHasOlder(false);
+      }
+      setOlder("idle");
+    } catch {
+      if (activeChat.current === chatId) setOlder("error");
+    } finally {
+      if (activeChat.current === chatId) loadingOlder.current = false;
     }
   }, [chatId]);
 
@@ -51,6 +105,10 @@ export function useConversation(chatId?: string) {
     setMessages([]);
     setTypingIds([]);
     setHistory("loading");
+    shown.current = [];
+    loadingOlder.current = false;
+    setHasOlder(false);
+    setOlder("idle");
     void loadHistory();
     return () => {
       activeChat.current = undefined;
@@ -170,6 +228,9 @@ export function useConversation(chatId?: string) {
     messages,
     history,
     retryHistory,
+    hasOlder,
+    older,
+    loadOlder,
     pending: pendingHere,
     typingIds,
     notifyTyping,
