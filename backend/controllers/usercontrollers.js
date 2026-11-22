@@ -144,4 +144,4 @@ const getAvatar = asyncHandler(async (req, res) => {
   res.type(type).send(image);
 });
 
-module.exports = { registerUser, resolveLoginAccount, authUser, allUsers, getAvatar };
+module.exports = { registerUser, resolveLoginAccount, authUser, allUsers, getAvatar, findUserByEmail };

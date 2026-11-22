@@ -2,6 +2,7 @@ const asyncHandler = require("express-async-handler");
 const userModel = require("../models/userModel");
 const chatModel = require("../models/chatModel");
 const { emitToUsers } = require("../socket");
+const { findUserByEmail } = require("./usercontrollers");
 const { imageType } = require("../config/imageType");
 const { storeAvatar, deleteAvatar } = require("../config/avatarStorage");
 
@@ -67,4 +68,40 @@ const removePhoto = asyncHandler(async (req, res) => {
   res.json(user);
 });
 
-module.exports = { updateName, updatePhoto, removePhoto };
+// anything that changes how you sign in needs the current password
+const confirmPassword = async (req, res, password) => {
+  const user = await userModel.findById(req.user._id);
+  if (typeof password !== "string" || !password || !(await user.matchPassword(password))) {
+    res.status(403);
+    throw new Error("Your current password is wrong");
+  }
+  return user;
+};
+
+const updateEmail = asyncHandler(async (req, res) => {
+  const email = typeof req.body.email === "string" ? req.body.email.trim().toLowerCase() : "";
+  if (email.length > 254 || !/^\S+@\S+$/.test(email)) {
+    res.status(400);
+    throw new Error("Enter a valid email address");
+  }
+  await confirmPassword(req, res, req.body.password);
+
+  const owner = await findUserByEmail(email);
+  if (owner && !owner._id.equals(req.user._id)) {
+    res.status(400);
+    throw new Error("That email is already in use");
+  }
+
+  let user;
+  try {
+    user = await userModel.findByIdAndUpdate(req.user._id, { $set: { email } }, { new: true });
+  } catch (error) {
+    if (error.code !== 11000) throw error;
+    res.status(400);
+    throw new Error("That email is already in use");
+  }
+  await announceProfile(req, user);
+  res.json(user);
+});
+
+module.exports = { updateName, updatePhoto, removePhoto, updateEmail };
