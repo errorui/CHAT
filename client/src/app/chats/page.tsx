@@ -12,7 +12,7 @@ import Header from '../compontes/Header';
 
 const page = () => {
   let {user}=useChat()
-  const [fetchAgain, setFetchAgain] = useState(false);
+  const [fetchAgain, setFetchAgain] = useState(0);
   return (
     <div className='w-full h-[100vh]'>
       {user&&<Header></Header>}

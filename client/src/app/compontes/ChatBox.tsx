@@ -81,7 +81,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
     });
 
     socket.on("chats changed", () => {
-      setFetchAgain((value: boolean) => !value);
+      setFetchAgain((value: number) => value + 1);
     });
 
     socket.on("message received", (newMessageReceived) => {
@@ -90,7 +90,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
         if (newMessageReceived.sender?._id !== user._id) {
           setNotification((prevNotifications) => [...prevNotifications, newMessageReceived]);
         }
-        setFetchAgain((value: boolean) => !value);
+        setFetchAgain((value: number) => value + 1);
         return;
       };
       setMessages((prevMessages) => appendMessage(prevMessages, newMessageReceived));
@@ -123,7 +123,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
   useEffect(() => {
     if (connections < 2) return;
     fetchMessages();
-    setFetchAgain((value: boolean) => !value);
+    setFetchAgain((value: number) => value + 1);
   }, [connections]);
 
   const fetchMessages = async () => {
@@ -193,7 +193,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
     try {
       const { data } = await axios.post('/api/chat', { userId }, { withCredentials: true });
       setSelectedChat(data);
-      setFetchAgain((value: boolean) => !value);
+      setFetchAgain((value: number) => value + 1);
     } catch (error) {
       toast({ variant: "destructive", title: "Could not open the chat" });
     }

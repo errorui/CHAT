@@ -22,8 +22,8 @@ import { User, Chat, Message } from '../type';
 
 interface GroupInfoProps {
   info: Chat;
-  fetchAgain: boolean;
-  setFetchAgain: React.Dispatch<React.SetStateAction<boolean>>;
+  fetchAgain: number;
+  setFetchAgain: React.Dispatch<React.SetStateAction<number>>;
 }
 
 function GroupInfo({ info, fetchAgain, setFetchAgain }: GroupInfoProps) {
@@ -63,7 +63,7 @@ function GroupInfo({ info, fetchAgain, setFetchAgain }: GroupInfoProps) {
         withCredentials: true
       });
       setSelectedChat(data);
-      setFetchAgain(!fetchAgain);
+      setFetchAgain((value) => value + 1);
     } catch (error) {
       console.log(error);
       alert("Error");
@@ -82,7 +82,7 @@ function GroupInfo({ info, fetchAgain, setFetchAgain }: GroupInfoProps) {
       }, {
         withCredentials: true
       });
-      setFetchAgain(!fetchAgain);
+      setFetchAgain((value) => value + 1);
       setSelectedChat(data);
     } catch (error) {
       alert("Error");
@@ -98,11 +98,11 @@ function GroupInfo({ info, fetchAgain, setFetchAgain }: GroupInfoProps) {
         withCredentials: true
       });
       if (user && user._id === user1._id) {
-        setFetchAgain(!fetchAgain);
+        setFetchAgain((value) => value + 1);
         setOpen(false);
         setSelectedChat(undefined);
       } else {
-        setFetchAgain(!fetchAgain);
+        setFetchAgain((value) => value + 1);
         setSelectedChat(data);
       }
     } catch (error) {
@@ -183,8 +183,8 @@ function GroupInfo({ info, fetchAgain, setFetchAgain }: GroupInfoProps) {
 
 interface GroupHeaderProps {
   group: Chat;
-  fetchAgain: boolean;
-  setFetchAgain: React.Dispatch<React.SetStateAction<boolean>>;
+  fetchAgain: number;
+  setFetchAgain: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const GroupHeader = ({ group, fetchAgain, setFetchAgain }: GroupHeaderProps) => {
