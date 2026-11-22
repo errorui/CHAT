@@ -13,6 +13,7 @@ const sendMesage=asyncHandler(async(req,res)=>{
     console.log("Invalid data passed into request")
     return res.sendStatus(400)
    }
+   await getMemberChat(req,res,chatId)
    let newMessage={
     sender:req.user._id,
     content:content,
