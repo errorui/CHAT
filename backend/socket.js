@@ -35,6 +35,10 @@ const createSocketServer = (server, origin) => {
       }
     });
 
+    socket.on("disconnecting", () => {
+      for (const room of socket.rooms) socket.to(room).emit("stop typing", { chatId: room });
+    });
+
     socket.on("typing", (room) => {
       if (!socket.rooms.has(room)) return;
       socket.in(room).emit("typing", { chatId: room });
