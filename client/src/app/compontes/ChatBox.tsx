@@ -1,140 +1,91 @@
-import { avatarSrc } from '@/lib/avatar';
-import { useConversation } from '@/hooks/useConversation';
-import { useChat } from '@/context/ChatProvider';
-import React, { useEffect, useRef, useState } from 'react';
-import { getSender, isLastMessage, isSameSender } from '../utils/getContact';
-import { Button } from '@/components/ui/button';
-import Groupheader from './Groupheader';
-import ProfileModal from './ProfileModal';
-import { Input } from '@/components/ui/input';
-import { useToast } from '@/components/ui/use-toast';
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar";
-import { Message } from '../type';
+"use client";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import React, { useState } from "react";
+import { LuMessagesSquare } from "react-icons/lu";
+import { useToast } from "@/components/ui/use-toast";
+import { useChat } from "@/context/ChatProvider";
+import { useConversation } from "@/hooks/useConversation";
+import { chatTitle, firstName } from "@/lib/chat";
+import { Composer } from "./Composer";
+import { ConversationHeader } from "./ConversationHeader";
+import { MessageList } from "./MessageList";
+import { Chat } from "../type";
+
+const typingLabel = (chat: Chat, ids: string[]) => {
+  if (!ids.length) return null;
+  if (!chat.isGroupChat) return "typing…";
+
+  const names = ids.flatMap((id) => {
+    const member = chat.users.find((user) => user._id === id);
+    return member ? [firstName(member.name)] : [];
+  });
+  if (names.length === 1) return `${names[0]} is typing…`;
+  if (names.length === 2) return `${names[0]} and ${names[1]} are typing…`;
+  return names.length ? "Several people are typing…" : "Someone is typing…";
+};
+
 const ChatBox = () => {
-  const { user, selectedChat, setSelectedChat, openDirectChat: openChat } = useChat();
-  const { messages, history, typingIds, notifyTyping, send } = useConversation(selectedChat?._id);
-  const [newMessage, setNewMessage] = useState("");
-  const scroller = useRef<HTMLDivElement>(null);
-  const openId = useRef<string | undefined>(undefined);
+  const { user, selectedChat } = useChat();
   const { toast } = useToast();
-  const loadingChats = history === "loading";
+  const chatId = selectedChat?._id;
+  const { messages, history, retryHistory, pending, typingIds, notifyTyping, stopTyping, send } =
+    useConversation(chatId);
+  // one draft per chat, so text can never follow you into another conversation
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
 
-  useEffect(() => {
-    openId.current = selectedChat?._id;
-    setNewMessage("");
-  }, [selectedChat?._id]);
+  if (!selectedChat || !chatId) {
+    return (
+      <div className="flex flex-1 flex-col items-center justify-center bg-canvas px-8 text-center">
+        <span className="mb-5 flex h-16 w-16 items-center justify-center rounded-[38%] bg-accent text-accent-foreground">
+          <LuMessagesSquare aria-hidden className="h-8 w-8" />
+        </span>
+        <h2 className="font-display text-2xl font-bold tracking-tight">Pick a conversation</h2>
+        <p className="mt-1.5 max-w-xs text-sm text-muted-foreground">
+          Choose a chat on the left, or start a new one with anyone on talk-tip.
+        </p>
+      </div>
+    );
+  }
 
-  useEffect(() => {
-    const list = scroller.current;
-    if (list) list.scrollTop = list.scrollHeight;
-  }, [messages, history]);
+  const draft = drafts[chatId] ?? "";
+  const setDraft = (value: string) => setDrafts((all) => ({ ...all, [chatId]: value }));
 
-  const sendMessage = async (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter" && !event.nativeEvent.isComposing && newMessage.trim()) {
-      const chatId = selectedChat?._id;
-      const text = newMessage;
-      setNewMessage("");
-      if (await send(text)) return;
-      if (openId.current === chatId) setNewMessage((current) => current || text);
-      toast({ variant: "destructive", title: "Message not sent", description: "Please try again." });
-    }
+  const change = (value: string) => {
+    setDraft(value);
+    if (value.trim()) notifyTyping();
+    else stopTyping();
   };
 
-  const typingHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewMessage(e.target.value);
-    notifyTyping();
+  const submit = async () => {
+    const text = draft;
+    setDraft("");
+    if (await send(text)) return;
+    // back into the chat it was written in, unless something newer was typed there
+    setDrafts((all) => ({ ...all, [chatId]: all[chatId] || text }));
+    toast({ variant: "destructive", title: "Message not sent", description: "Your text is back in the message box." });
   };
 
-  const openDirectChat = async (userId: string) => {
-    try {
-      await openChat(userId);
-    } catch (error) {
-      toast({ variant: "destructive", title: "Could not open the chat" });
-    }
-  };
+  const typing = typingLabel(selectedChat, typingIds);
 
   return (
-    <div className={`${selectedChat ? 'flex' : 'hidden'} h-full min-w-0 flex-1 flex-col rounded-lg shadow-md bg-slate-200`}>
-      <div className="bg-white p-3 w-full flex shadow-lg items-center">
-        <Button onClick={() => { setSelectedChat(undefined) }}>Back</Button>
-        {selectedChat && selectedChat.isGroupChat ? (
-          <div className='flex-1'>
-            <Groupheader group={selectedChat}></Groupheader>
-          </div>
-        ) : (
-          <div>
-            {selectedChat && <ProfileModal user={getSender(user, selectedChat.users)}></ProfileModal>}
-          </div>
-        )}
-      </div>
-      <div className="min-h-0 flex-1 flex flex-col justify-between bg-slate-100">
-        {loadingChats ? ( // Conditional rendering based on loadingChats state
-          <div className="flex justify-center items-center h-full">
-            <span>Loading chats...</span>
-          </div>
-        ) : (
-          <>
-            <div ref={scroller} className="p-5 min-h-0 flex-1 overflow-y-scroll flex flex-col">
-              {messages && messages.map((message: Message, index) => {
-                const shouldDisplaySender = isSameSender(messages, message, index, user?._id) || isLastMessage(messages, index, user?._id);
-                const isSentByUser = message.sender?._id === user?._id;
-                return (
-                  <div key={message._id} className={`my-[1px] flex ${isSentByUser ? 'justify-end' : 'justify-start'}`}>
-                    {shouldDisplaySender && message.sender && (
-                    <Dialog  >
-                    <DialogTrigger asChild>
-                      <Avatar>
-                        <AvatarImage src={avatarSrc(message.sender)} alt="@shadcn" />
-                        <AvatarFallback>CN</AvatarFallback>
-                      </Avatar>
-                    </DialogTrigger>
-                    <DialogContent  className="flex flex-col items-center justify-center">
-                      <DialogHeader>
-                        <DialogDescription>
-                    Profile pic
-<Avatar className="size-[200px]"><AvatarImage src={avatarSrc(message.sender)} alt="" /><AvatarFallback>{message.sender.name.slice(0, 3)}</AvatarFallback></Avatar>
- <br></br>
- email:{message.sender.email}
-      </DialogDescription>
-    </DialogHeader>
-    <Button onClick={() => {
-  openDirectChat(message.sender._id);
-}}>Talk</Button>
-
- 
-  </DialogContent>
-                  </Dialog>
-                    )}
-                    <span className={`${isSentByUser ? "bg-white text-black" : "bg-black text-white"} p-3 shadow-lg rounded-lg max-w-xs min-w-0 whitespace-pre-wrap [overflow-wrap:anywhere]`}>
-                      {message.content}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-            <div className="">
-              {typingIds.length > 0 && <h1 className='text-3xl'>Typing...</h1>}
-            </div>
-            <div className="flex">
-              <Input placeholder='Enter your message' value={newMessage} onKeyDown={sendMessage} onChange={typingHandler} className="border-2 border-black"></Input>
-            </div>
-          </>
-        )}
-      </div>
+    <div className="flex min-h-0 flex-1 flex-col">
+      <ConversationHeader chat={selectedChat} typing={typing} />
+      <MessageList
+        key={chatId}
+        chat={selectedChat}
+        messages={messages}
+        pending={pending}
+        history={history}
+        onRetry={retryHistory}
+        typing={typing}
+      />
+      <Composer
+        chatId={chatId}
+        recipient={chatTitle(user, selectedChat)}
+        value={draft}
+        onChange={change}
+        onSend={submit}
+      />
     </div>
   );
 };
