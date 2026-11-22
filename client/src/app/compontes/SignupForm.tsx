@@ -18,12 +18,7 @@ const postuser = async (formData: FormData) => {
 
     return response.data;
   } catch (error: any) {
-    const status = error?.response?.status;
-    if (status === 400) {
-      return "User already exists";
-    } else {
-      return "Server error";
-    }
+    return error?.response?.data?.message || "Could not create the account. Please try again.";
   }
 };
 
