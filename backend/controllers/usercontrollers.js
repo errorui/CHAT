@@ -22,12 +22,21 @@ const registerUser = asyncHandler(async (req, res) => {
     return res.status(400).json({ err: "user already exists" });
   }
 
-  const user = await userModel.create({
-    name,
-    email,
-    password,
-    ProfilePic,
-  });
+  let user;
+  try {
+    user = await userModel.create({
+      name,
+      email,
+      password,
+      ProfilePic,
+    });
+  } catch (error) {
+    // another request registered the same email first
+    if (error.code === 11000) {
+      return res.status(400).json({ err: "user already exists" });
+    }
+    throw error;
+  }
 
   if (user) {
     let token = generateToken(user._id);
