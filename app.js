@@ -48,6 +48,16 @@ app.get('/', (req, res) => {
   res.send('API is working');
 });
 
+// auth is a cookie, so other websites must not be able to make changes with it
+const safeMethods = ['GET', 'HEAD', 'OPTIONS'];
+app.use('/api', (req, res, next) => {
+  const from = req.headers.origin;
+  if (from && !safeMethods.includes(req.method) && !origin.includes(from)) {
+    return res.status(403).json({ message: 'Origin not allowed' });
+  }
+  next();
+});
+
 // responses are per user, so proxies and browsers must not store them
 app.use('/api', (req, res, next) => {
   res.set('Cache-Control', 'private, no-store');
