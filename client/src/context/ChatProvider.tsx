@@ -198,9 +198,11 @@ const ChatProvider = ({ children }: { children: ReactNode }) => {
   }, [userId, refreshChats]);
 
   useEffect(() => {
-    openChatId.current = selectedId;
-    if (selectedId) setNotification((list) => list.filter((item) => item.chat._id !== selectedId));
-  }, [selectedId]);
+    // a selected chat isn't being read while you are on another page
+    const reading = pathname === "/chats" ? selectedId : undefined;
+    openChatId.current = reading;
+    if (reading) setNotification((list) => list.filter((item) => item.chat._id !== reading));
+  }, [selectedId, pathname]);
 
   // one realtime connection per signed in account
   useEffect(() => {
