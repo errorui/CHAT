@@ -191,22 +191,18 @@ const removeFromGroup = asyncHandler(async (req, res) => {
   } 
 
   io.in(userId.toLowerCase()).socketsLeave(String(chat._id));
-  // the list from before the update, so the removed person is told as well
-  notifyMembers(req, chat._id, chat.users);
-
-  if (updatedChat.users.length === 0) {
-
+  const isEmpty = updatedChat.users.length === 0;
+  if (isEmpty) {
     await chatModel.findByIdAndDelete(chatId);
-    res.json({ message: "Chat deleted as no users left" });
   } else if (isAdminLeaving) {
-  
     updatedChat.groupAdmin = updatedChat.users[0];
     await updatedChat.save();
-    res.json(updatedChat);
-  } else {
-  
-    res.json(updatedChat);
   }
+
+  // only after saving, clients refetch as soon as they hear this.
+  // the list from before the update, so the removed person is told as well
+  notifyMembers(req, chat._id, chat.users);
+  res.json(isEmpty ? { message: "Chat deleted as no users left" } : updatedChat);
 });
 
 // @desc    Add user to Group / Leave
