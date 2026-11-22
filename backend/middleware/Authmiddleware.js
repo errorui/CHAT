@@ -19,7 +19,6 @@ const protect = asyncHandler(async (req, res, next) => {
      authHeader&&
       authHeader.startsWith("Bearer")
     ) {
-        console.log("hi")
       // If not in cookies, try to get it from the authorization header
       token = authHeader.split(' ')[1];
     }
