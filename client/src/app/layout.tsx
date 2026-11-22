@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Figtree } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster"
@@ -11,6 +11,13 @@ const display = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-disp
 export const metadata: Metadata = {
   title: "talk-tip",
   description: "Real-time one-to-one and group chat",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  // keep the composer above android keyboards
+  interactiveWidget: "resizes-content",
 };
 
 export default function RootLayout({
