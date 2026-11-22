@@ -30,4 +30,13 @@ const getMemberGroup = async (req, res, chatId) => {
   return chat;
 };
 
-module.exports = { isValidId, requireId, getMemberChat, getMemberGroup };
+const getAdminGroup = async (req, res, chatId) => {
+  const chat = await getMemberGroup(req, res, chatId);
+  if (!chat.groupAdmin?.equals(req.user._id)) {
+    res.status(403);
+    throw new Error("Only the group admin can do that");
+  }
+  return chat;
+};
+
+module.exports = { isValidId, requireId, getMemberChat, getMemberGroup, getAdminGroup };
