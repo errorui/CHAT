@@ -10,6 +10,8 @@ const userSchema=mongoose.Schema({
       default: "",
       select: false, // can be megabytes, only the avatar route loads it
     },
+    // a login token only works while this matches the one it was signed with
+    tokenVersion: { type: Number },
     // changes with the picture, so cached avatar urls are replaced
     avatarVersion: { type: Number },
     // set when ProfilePic is a cloudinary url rather than base64
@@ -27,6 +29,7 @@ const userSchema=mongoose.Schema({
       delete ret.password;
       delete ret.ProfilePic;
       delete ret.avatarPublicId;
+      delete ret.tokenVersion;
       return ret;
     },
   },

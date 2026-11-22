@@ -48,6 +48,11 @@ const protect = asyncHandler(async (req, res, next) => {
       res.status(401);
       throw new Error("Not authorized, user no longer exists");
     }
+    // tokens from before a password change. Ones without a version predate this check
+    if ((decoded.v ?? 0) !== (req.user.tokenVersion ?? 0)) {
+      res.status(401);
+      throw new Error("Not authorized, signed out by a password change");
+    }
     next();
   });
   

@@ -1,6 +1,6 @@
 const jwt=require('jsonwebtoken')
-const generateToken=(id)=>{
-    return jwt.sign({id},process.env.SECRET,{
+const generateToken=(id,version=0)=>{
+    return jwt.sign({id,v:version},process.env.SECRET,{
         expiresIn:"3d"
     });
 }

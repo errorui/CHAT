@@ -4,6 +4,8 @@ const chatModel = require("../models/chatModel");
 const { emitToUsers } = require("../socket");
 const { findUserByEmail } = require("./usercontrollers");
 const { imageType } = require("../config/imageType");
+const { generateToken } = require("../config/generateToken");
+const { setAuthCookie } = require("../config/authCookie");
 const { storeAvatar, deleteAvatar } = require("../config/avatarStorage");
 
 const MAX_NAME_LENGTH = 80;
@@ -113,8 +115,16 @@ const updatePassword = asyncHandler(async (req, res) => {
 
   const user = await confirmPassword(req, res, currentPassword);
   user.password = newPassword; // hashed by the pre save hook
+  user.tokenVersion = (user.tokenVersion ?? 0) + 1;
   await user.save();
+
+  // this browser stays signed in, every other one is signed out
+  setAuthCookie(res, generateToken(user._id, user.tokenVersion));
   res.json({ message: "Password changed" });
+
+  // sockets don't recheck the token, so make them reconnect. The delay lets the new cookie land first
+  const io = req.app.get("io");
+  setTimeout(() => io.in(String(user._id)).disconnectSockets(true), 1000);
 });
 
 module.exports = { updateName, updatePhoto, removePhoto, updateEmail, updatePassword };

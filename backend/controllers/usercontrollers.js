@@ -88,7 +88,7 @@ const authUser = asyncHandler(async (req, res) => {
   const user = req.loginUser;
 
   if (user && (await user.matchPassword(password))) {
-    let token=generateToken(user._id)
+    let token=generateToken(user._id,user.tokenVersion)
     setAuthCookie(res, token);
 
     

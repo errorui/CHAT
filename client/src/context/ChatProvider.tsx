@@ -216,7 +216,11 @@ const ChatProvider = ({ children }: { children: ReactNode }) => {
       if (connectedBefore) void refreshChats();
       connectedBefore = true;
     });
-    client.on("disconnect", () => setConnection("offline"));
+    client.on("disconnect", (reason) => {
+      setConnection("offline");
+      // the server does this after a password change, and then socket.io waits for us to reconnect
+      if (reason === "io server disconnect") retry = setTimeout(() => client.connect(), 500);
+    });
     client.on("connect_error", () => {
       setConnection("offline");
       // socket.io doesn't retry by itself when the server refuses the connection
