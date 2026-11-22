@@ -75,6 +75,11 @@ const ChatProvider = ({ children }: { children: ReactNode }) => {
     };
   }, [pathname]);
 
+  useEffect(() => {
+    if (!selectedChat) return;
+    setNotification((list) => list.filter((item) => item.chat._id !== selectedChat._id));
+  }, [selectedChat?._id]);
+
   return (
     <ChatContext.Provider value={{
       selectedChat,
