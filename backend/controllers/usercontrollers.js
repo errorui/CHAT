@@ -68,15 +68,21 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 });
 
-const authUser = asyncHandler(async (req, res) => {
-
+// runs ahead of the login limiter, which counts per account
+const resolveLoginAccount = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
   if (typeof email !== "string" || typeof password !== "string" || !email || !password) {
     res.status(400);
     throw new Error("Please enter email and password");
   }
 
-  const user = await findUserByEmail(email.trim());
+  req.loginUser = await findUserByEmail(email.trim());
+  next();
+});
+
+const authUser = asyncHandler(async (req, res) => {
+  const { password } = req.body;
+  const user = req.loginUser;
 
   if (user && (await user.matchPassword(password))) {
     let token=generateToken(user._id)
@@ -131,4 +137,4 @@ const getAvatar = asyncHandler(async (req, res) => {
   res.type(type).send(image);
 });
 
-module.exports = { registerUser, authUser, allUsers, getAvatar };
+module.exports = { registerUser, resolveLoginAccount, authUser, allUsers, getAvatar };

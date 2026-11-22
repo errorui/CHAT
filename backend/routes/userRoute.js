@@ -1,6 +1,7 @@
 const express = require("express");
 const {
   registerUser,
+  resolveLoginAccount,
   authUser,
   allUsers,
   getAvatar,
@@ -8,6 +9,7 @@ const {
 const { protect } = require("../middleware/Authmiddleware");
 const upload = require("../config/multer-config");
 const { clearAuthCookie } = require("../config/authCookie");
+const { limitLoginPerClient } = require("../middleware/loginLimiter");
 const { generateSocketToken } = require("../config/generateToken");
 const router = express.Router();
 
@@ -22,7 +24,7 @@ router
   .route("/")
   .post(receiveAvatar, registerUser)
   .get(protect, allUsers);
-router.post("/login", authUser);
+router.post("/login", resolveLoginAccount, limitLoginPerClient, authUser);
 
 router.get("/user", protect, (req, res) => {
   res.send(req.user);
