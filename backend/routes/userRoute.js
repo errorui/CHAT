@@ -6,6 +6,7 @@ const {
 } = require("../controllers/usercontrollers");
 const { protect } = require("../middleware/Authmiddleware");
 const upload = require("../config/multer-config");
+const { clearAuthCookie } = require("../config/authCookie");
 const router = express.Router();
 
 router
@@ -18,12 +19,7 @@ router.get("/user", protect, (req, res) => {
   res.send(req.user);
 });
 router.route("/logout").get(protect, (req, res) => {
-  res.cookie("token", "", {
-    httpOnly: true,
-    secure: true,
-    expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-    sameSite: "none",
-  });
+  clearAuthCookie(res);
   return res.send("logout succesfull");
 });
 
