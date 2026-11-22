@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import Link from "next/link";
+import React, { useRef } from "react";
 import { LuBell, LuLogOut, LuUser } from "react-icons/lu";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,7 +17,7 @@ import { useChat } from "@/context/ChatProvider";
 import { chatTitle, focusComposer } from "@/lib/chat";
 import { errorMessage } from "@/lib/errors";
 import { Logo } from "./Logo";
-import ProfileModal from "./ProfileModal";
+
 import { ThemeMenuItem } from "./ThemeMenuItem";
 import { UserAvatar } from "./UserAvatar";
 import { Chat, Message } from "../type";
@@ -26,7 +27,7 @@ type Unread = { chat: Chat; count: number; latest: Message };
 const Header = () => {
   const { user, signOut, chats, notification, setSelectedChat } = useChat();
   const { toast } = useToast();
-  const [profileOpen, setProfileOpen] = useState(false);
+
   const openedChat = useRef(false);
 
   if (!user) return null;
@@ -135,9 +136,11 @@ const Header = () => {
               <span className="block truncate text-xs font-normal text-muted-foreground">{user.email}</span>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={() => setProfileOpen(true)} className="gap-2 py-2">
-              <LuUser aria-hidden />
-              Profile
+            <DropdownMenuItem asChild className="gap-2 py-2">
+              <Link href="/profile">
+                <LuUser aria-hidden />
+                Edit profile
+              </Link>
             </DropdownMenuItem>
             <ThemeMenuItem />
             <DropdownMenuItem onSelect={logout} className="gap-2 py-2 text-destructive focus:text-destructive">
@@ -148,7 +151,6 @@ const Header = () => {
         </DropdownMenu>
       </div>
 
-      <ProfileModal user={user} open={profileOpen} onOpenChange={setProfileOpen} />
     </header>
   );
 };
