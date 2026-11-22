@@ -30,7 +30,7 @@ const MakeGroup = () => {
 
 
     const handleGroup=(userToAdd:any)=>{
-        if(groupUsers.includes(userToAdd)){
+        if(groupUsers.some((u)=>u._id===userToAdd._id)){
         alert("user already added")
         return;
         }
