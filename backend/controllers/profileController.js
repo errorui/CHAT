@@ -2,6 +2,8 @@ const asyncHandler = require("express-async-handler");
 const userModel = require("../models/userModel");
 const chatModel = require("../models/chatModel");
 const { emitToUsers } = require("../socket");
+const { imageType } = require("../config/imageType");
+const { storeAvatar, deleteAvatar } = require("../config/avatarStorage");
 
 const MAX_NAME_LENGTH = 80;
 
@@ -29,4 +31,31 @@ const updateName = asyncHandler(async (req, res) => {
   res.json(user);
 });
 
-module.exports = { updateName };
+// returns the picture that was replaced, atomically so simultaneous uploads leave no orphans
+const replacePicture = (userId, fields) =>
+  userModel
+    .findByIdAndUpdate(userId, { $set: { ...fields, avatarVersion: Date.now() } }, { new: false })
+    .select("+avatarPublicId");
+
+const updatePhoto = asyncHandler(async (req, res) => {
+  if (!req.file || !imageType(req.file.buffer)) {
+    res.status(400);
+    throw new Error("Profile picture must be a PNG, JPEG, GIF or WebP image");
+  }
+
+  const photo = await storeAvatar(req.file.buffer);
+  let previous;
+  try {
+    previous = await replacePicture(req.user._id, photo);
+  } catch (error) {
+    await deleteAvatar(photo.avatarPublicId);
+    throw error;
+  }
+  await deleteAvatar(previous?.avatarPublicId);
+
+  const user = await userModel.findById(req.user._id);
+  await announceProfile(req, user);
+  res.json(user);
+});
+
+module.exports = { updateName, updatePhoto };
