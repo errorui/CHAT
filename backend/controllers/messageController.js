@@ -9,9 +9,9 @@ const { getMemberChat } = require("../utils/chatAccess");
 const sendMesage=asyncHandler(async(req,res)=>{
    const {content,chatId}=req.body;
    
-   if(!content||!chatId){
-    console.log("Invalid data passed into request")
-    return res.sendStatus(400)
+   if(typeof content!=="string"||!content.trim()||!chatId){
+    res.status(400)
+    throw new Error("Message cannot be empty")
    }
    await getMemberChat(req,res,chatId)
    let newMessage={
