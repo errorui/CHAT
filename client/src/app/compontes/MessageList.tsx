@@ -177,6 +177,8 @@ export const MessageList = React.memo(function MessageList({
             const endsRun = !sameRun(message, after);
             const newDay = !before || !sameDay(before, message);
             const showPerson = chat.isGroupChat && !mine;
+            // the member list is fresher than the copy saved with the loaded message
+            const sender = chat.users.find((member) => member._id === message.sender?._id) ?? message.sender;
 
             return (
               <React.Fragment key={message._id}>
@@ -195,14 +197,14 @@ export const MessageList = React.memo(function MessageList({
                 >
                   {showPerson && (
                     <div className={cn("w-7 shrink-0", endsRun && "mb-5")}>
-                      {endsRun && message.sender && (
-                        <ProfileModal user={message.sender}>
+                      {endsRun && sender && (
+                        <ProfileModal user={sender}>
                           <button
                             type="button"
-                            aria-label={`View ${message.sender.name}'s profile`}
+                            aria-label={`View ${sender.name}'s profile`}
                             className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                           >
-                            <UserAvatar user={message.sender} size="xs" />
+                            <UserAvatar user={sender} size="xs" />
                           </button>
                         </ProfileModal>
                       )}
@@ -212,7 +214,7 @@ export const MessageList = React.memo(function MessageList({
                   <div className={cn("flex min-w-0 max-w-[82%] flex-col sm:max-w-[70%]", mine ? "items-end" : "items-start")}>
                     {showPerson && startsRun && (
                       <span className="mb-1 max-w-full truncate px-1 text-xs font-semibold text-muted-foreground">
-                        {message.sender?.name ?? "Deleted user"}
+                        {sender?.name ?? "Deleted user"}
                       </span>
                     )}
                     <p
