@@ -131,7 +131,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
   };
 
   const sendMessage = async (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter" && newMessage.trim()) {
+    if (event.key === "Enter" && !event.nativeEvent.isComposing && newMessage.trim()) {
       socket?.emit("stop typing", selectedChat?._id);
       setTyping(false);
       const chatId = selectedChat?._id;
