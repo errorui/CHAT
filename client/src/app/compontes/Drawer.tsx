@@ -152,7 +152,7 @@ export function Drawer() {
             searchresults&&(
                 searchresults.map((i:User,index)=>{
                     return (
-                       <UserListItem i={i} handlefunction={()=>accessChat(i._id)}></UserListItem>
+                       <UserListItem key={i._id} i={i} handlefunction={()=>accessChat(i._id)}></UserListItem>
                     )
                 })
             )
