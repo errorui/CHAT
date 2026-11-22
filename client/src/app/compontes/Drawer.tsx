@@ -86,18 +86,15 @@ export function Drawer() {
         try {
            setloading(true)
          let {data}=  await axios.get(`/api/user?search=${encodeURIComponent(search)}`,  { withCredentials: true });
-         console.log(data)
-         
         //  data as User[]
          setsearchresults(data);
-           setloading(false);
         } catch (error) {
           toast({
             variant: "destructive",
-            title: "something went wrong",
-            action: <ToastAction altText="Try again">Try different email</ToastAction>,
-           
+            title: "Search failed. Please try again.",
           })
+        } finally {
+          setloading(false);
         }
    }
    const accessChat=async(userId:string)=>{
