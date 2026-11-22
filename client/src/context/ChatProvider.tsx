@@ -15,6 +15,7 @@ type ContextType = {
   setChats:  React.Dispatch<React.SetStateAction<Chat[]>>;
   notification: Message[];
   setNotification: React.Dispatch<React.SetStateAction<Message[]>>;
+  clearSession: () => void;
 };
 
 const ChatContext = createContext<ContextType | undefined>(undefined);
@@ -39,6 +40,14 @@ const ChatProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // nothing of one account may survive into the next one on the same browser
+  const clearSession = () => {
+    setUser(null);
+    setSelectedChat(undefined);
+    setChats([]);
+    setNotification([]);
+  };
+
   useEffect(() => {
     let cancelled = false;
     let retry: ReturnType<typeof setTimeout>;
@@ -50,6 +59,7 @@ const ChatProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
       if (!res) {
+        clearSession();
 
         router.push('/');
       } else {
@@ -75,6 +85,7 @@ const ChatProvider = ({ children }: { children: ReactNode }) => {
       setNotification,
       chats,
       setChats,
+      clearSession,
     }}>
       {children}
     </ChatContext.Provider>

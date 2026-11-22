@@ -47,7 +47,7 @@ const Header = () => {
     user,
     notification,
     setNotification,
-    setUser,
+    clearSession,
     chats,
     setChats,
   } = useChat();
@@ -62,9 +62,8 @@ const Header = () => {
             title: "logout succesfully",
          
           })
-          setUser(null)
+          clearSession()
           router.replace('/')
-          setSelectedChat(undefined)
          
        
       
