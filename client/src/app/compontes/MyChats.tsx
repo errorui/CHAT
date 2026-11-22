@@ -68,7 +68,7 @@ const MyChats = ({fetchAgain}:{
   const { toast } = useToast()
  
   return (
-    <div className={`${selectedChat ? 'hidden' : 'flex-1'} overflow-y-scroll h-screen  shadow-lg p-3 `}>
+    <div className={`${selectedChat ? 'hidden' : 'flex-1'} overflow-y-scroll h-full min-w-0 shadow-lg p-3 `}>
       <div className='flex items-center justify-between w-full py-4  text-2xl shadow-md rounded-lg'>
         <h1>chats</h1>
     <MakeGroup></MakeGroup>

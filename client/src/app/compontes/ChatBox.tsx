@@ -207,7 +207,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
  
 
   return (
-    <div className={`${selectedChat ? 'flex-1' : 'hidden'} h-full rounded-lg shadow-md bg-slate-200`}>
+    <div className={`${selectedChat ? 'flex' : 'hidden'} h-full min-w-0 flex-1 flex-col rounded-lg shadow-md bg-slate-200`}>
       <div className="bg-white p-3 w-full flex shadow-lg items-center">
         <Button onClick={() => { setSelectedChat(undefined) }}>Back</Button>
         {selectedChat && selectedChat.isGroupChat ? (
@@ -220,14 +220,14 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
           </div>
         )}
       </div>
-      <div className="h-[90vh] flex flex-col justify-between bg-slate-100">
+      <div className="min-h-0 flex-1 flex flex-col justify-between bg-slate-100">
         {loadingChats ? ( // Conditional rendering based on loadingChats state
           <div className="flex justify-center items-center h-full">
             <span>Loading chats...</span>
           </div>
         ) : (
           <>
-            <div ref={scroller} className="p-5 h-[100%] overflow-y-scroll flex flex-col">
+            <div ref={scroller} className="p-5 min-h-0 flex-1 overflow-y-scroll flex flex-col">
               {messages && messages.map((message: Message, index) => {
                 const shouldDisplaySender = isSameSender(messages, message, index, user?._id) || isLastMessage(messages, index, user?._id);
                 const isSentByUser = message.sender?._id === user?._id;
