@@ -53,7 +53,7 @@ type User= {
     _id: string;
     name: string;
     email: string;
-    ProfilePic: string;
+
     isAdmin: boolean;
     createdAt: string;
     updatedAt: string;

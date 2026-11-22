@@ -1,3 +1,4 @@
+import { avatarSrc } from '@/lib/avatar';
 import { useChat } from '@/context/ChatProvider'
 import React from 'react'
 import { Button } from "@/components/ui/button"
@@ -53,10 +54,6 @@ const Header = () => {
 
     const { toast } = useToast()
     const router = useRouter();
-    const getImageSrc = (user:User) => {
-        const mimeType ="image/jpeg";
-        return `data:${mimeType};base64,${user.ProfilePic}`;
-      };
     const logout = async () => {
         try {
           
@@ -119,13 +116,13 @@ const Header = () => {
     <DropdownMenu>
   <DropdownMenuTrigger asChild>
   <Avatar>
-      <AvatarImage src={getImageSrc(user!)} alt="@shadcn" />
+      <AvatarImage src={avatarSrc(user!)} alt="@shadcn" />
       <AvatarFallback className="uppercase">{user?.name.slice(0,3)}</AvatarFallback>
     </Avatar>
   </DropdownMenuTrigger>
   <DropdownMenuContent >
 {user&& <DropdownMenuLabel className="flex items-center gap-3">My Account    <Avatar>
-      <AvatarImage src={getImageSrc(user)} alt="@shadcn" />
+      <AvatarImage src={avatarSrc(user)} alt="@shadcn" />
       <AvatarFallback className="uppercase">{user.name.slice(0,3)}</AvatarFallback>
     </Avatar>
     
@@ -148,7 +145,7 @@ const Header = () => {
       <DialogTitle className="text-center">Hi {user.name}</DialogTitle>
       <DialogDescription className="text-center">
  Profile pic
-<div className="  object-fill overflow-hidden rounded-full size-[200px] "><img src={user.ProfilePic?getImageSrc(user):"https://github.com/shadcn.png"} className="object-fill  w-full h-full bg-center" alt="" /></div>
+<Avatar className="size-[200px]"><AvatarImage src={avatarSrc(user)} alt="" /><AvatarFallback>{user.name.slice(0, 3)}</AvatarFallback></Avatar>
  <br></br>
  email:{user.email}
       </DialogDescription>

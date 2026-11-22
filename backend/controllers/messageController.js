@@ -21,11 +21,11 @@ const sendMesage=asyncHandler(async(req,res)=>{
     chat:chatId
    }
     let message=await messageModel.create(newMessage);
-    message=await message.populate("sender","name pic")
+    message=await message.populate("sender","name email")
     message=await message.populate("chat")
     message=await userModel.populate(message,{
         path:"chat.users",
-        select:"name ProfilePic email"
+        select:"name email"
     })
     await chatModel.findByIdAndUpdate(req.body.chatId,{
         lastmessage:message._id,
@@ -39,7 +39,7 @@ const allMessages=asyncHandler(async(req,res)=>{
     const chat=await getMemberChat(req,res,req.params.chatId)
     let messages=await messageModel.find({chat:chat._id})
     .sort({createdAt:1,_id:1})
-    .populate("sender","name ProfilePic email")
+    .populate("sender","name email")
     .populate("chat")
     res.json(messages)
 }

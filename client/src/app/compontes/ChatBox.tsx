@@ -1,3 +1,4 @@
+import { avatarSrc } from '@/lib/avatar';
 import { API_URL } from '@/lib/api';
 import { useChat } from '@/context/ChatProvider';
 import React, { useEffect, useState } from 'react';
@@ -165,10 +166,6 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
   };
 
  
-  const getImageSrc = (user: any) => {
-    const mimeType = "image/jpeg";
-    return `data:${mimeType};base64,${user.ProfilePic}`;
-  };
 
   return (
     <div className={`${selectedChat ? 'flex-1' : 'hidden'} h-full rounded-lg shadow-md bg-slate-200`}>
@@ -201,7 +198,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
                     <Dialog  >
                     <DialogTrigger asChild>
                       <Avatar onClick={() => handleAvatarClick(message.sender)}>
-                        <AvatarImage src={getImageSrc(message.sender)} alt="@shadcn" />
+                        <AvatarImage src={avatarSrc(message.sender)} alt="@shadcn" />
                         <AvatarFallback>CN</AvatarFallback>
                       </Avatar>
                     </DialogTrigger>
@@ -209,7 +206,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
                       <DialogHeader>
                         <DialogDescription>
                     Profile pic
-<div className="  object-fill overflow-hidden rounded-full size-[200px] "><img src={message.sender.ProfilePic?getImageSrc(message.sender):"https://github.com/shadcn.png"} className="object-fill  w-full h-full bg-center" alt="" /></div>
+<Avatar className="size-[200px]"><AvatarImage src={avatarSrc(message.sender)} alt="" /><AvatarFallback>{message.sender.name.slice(0, 3)}</AvatarFallback></Avatar>
  <br></br>
  email:{message.sender.email}
       </DialogDescription>

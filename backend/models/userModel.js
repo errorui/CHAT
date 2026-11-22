@@ -8,6 +8,7 @@ const userSchema=mongoose.Schema({
       type: String, 
        
       default: "",
+      select: false, // can be megabytes, only the avatar route loads it
     },
     isAdmin: {
       type: Boolean,
@@ -20,6 +21,7 @@ const userSchema=mongoose.Schema({
     // never send the password hash to clients
     transform(doc, ret) {
       delete ret.password;
+      delete ret.ProfilePic;
       return ret;
     },
   },

@@ -3,6 +3,7 @@ const {
   registerUser,
   authUser,
   allUsers,
+  getAvatar,
 } = require("../controllers/usercontrollers");
 const { protect } = require("../middleware/Authmiddleware");
 const upload = require("../config/multer-config");
@@ -29,6 +30,7 @@ router.get("/user", protect, (req, res) => {
 router.get("/socket-token", protect, (req, res) => {
   res.json({ token: generateSocketToken(req.user._id) });
 });
+router.get("/:id/avatar", protect, getAvatar);
 router.route("/logout").get((req, res) => {
   clearAuthCookie(res);
   return res.send("logout succesfull");

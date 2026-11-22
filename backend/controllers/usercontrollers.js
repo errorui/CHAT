@@ -3,6 +3,7 @@ const usermodel = require("../models/userModel");
 const { generateToken } = require("../config/generateToken");
 const { setAuthCookie } = require("../config/authCookie");
 const { imageType } = require("../config/imageType");
+const { requireId } = require("../utils/chatAccess");
 
 const upload = require("../config/multer-config");
 const userModel = require("../models/userModel");
@@ -88,7 +89,7 @@ const authUser = asyncHandler(async (req, res) => {
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
-      ProfilePic: user.ProfilePic,
+
       token: token,
 
     });
@@ -116,4 +117,18 @@ const allUsers = asyncHandler(async (req, res) => {
   res.send(users);
 });
 
-module.exports = { registerUser, authUser,allUsers };
+const getAvatar = asyncHandler(async (req, res) => {
+  requireId(res, req.params.id, "user id");
+  const user = await userModel.findById(req.params.id).select("+ProfilePic");
+  const image = Buffer.from(user?.ProfilePic || "", "base64");
+  const type = imageType(image);
+
+  // short cache for "no picture", so initials don't cost a request on every render
+  res.set("Cache-Control", `private, max-age=${type ? 86400 : 300}`);
+  if (!type) return res.sendStatus(404);
+
+  res.set("X-Content-Type-Options", "nosniff");
+  res.type(type).send(image);
+});
+
+module.exports = { registerUser, authUser, allUsers, getAvatar };
