@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { toAvatarFile } from '@/lib/resizeImage';
 
 
 const postuser = async (formData: FormData) => {
@@ -63,7 +64,7 @@ const SignupForm = () => {
     formData.append('password', formValues.password);
     formData.append('confirmpassword', formValues.confirmpassword);
     if (formValues.ProfilePic) {
-      formData.append('ProfilePic', formValues.ProfilePic);
+      formData.append('ProfilePic', await toAvatarFile(formValues.ProfilePic));
     }
 
     const result = await postuser(formData);
