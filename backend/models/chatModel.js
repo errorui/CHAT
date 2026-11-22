@@ -11,6 +11,8 @@ const chatSchema=mongoose.Schema({
 
     chatName:{type:String,trim:true},
     isGroupChat:{type:Boolean, default:false},
+    // "<lower id>:<higher id>" for direct chats, makes the pair unique
+    directKey:{type:String, unique:true, sparse:true},
     users:[{
         type:mongoose.Schema.Types.ObjectId,
         ref:"user"

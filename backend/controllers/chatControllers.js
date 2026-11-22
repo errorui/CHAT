@@ -41,9 +41,14 @@ const accessChat = asyncHandler(async (req, res) => {
             chatName:"sender",
             isGroupChat:false,
             users:[req.user._id,userId],
+            directKey:[String(req.user._id),userId.toLowerCase()].sort().join(":"),
         }
         try {
-            const createdchat=await chatModel.create(chatData)
+            const createdchat=await chatModel.create(chatData).catch((error)=>{
+              if(error.code!==11000) throw error;
+              // a simultaneous request created it first
+              return chatModel.findOne({directKey:chatData.directKey});
+            })
             const FullChat=await chatModel.findOne({_id:createdchat._id}).populate("users","-password");
             res.status(200).send(FullChat);
         } catch (error) {
