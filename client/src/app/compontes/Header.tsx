@@ -63,6 +63,7 @@ const Header = () => {
          
           })
           setUser(null)
+          router.replace('/')
           setSelectedChat(undefined)
          
        
