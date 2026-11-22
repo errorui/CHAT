@@ -2,6 +2,7 @@ export type User = {
   _id: string;
   name: string;
   email: string;
+  avatarVersion?: number;
   isAdmin?: boolean;
   createdAt?: string;
   updatedAt?: string;

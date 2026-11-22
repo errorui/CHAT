@@ -10,6 +10,8 @@ const userSchema=mongoose.Schema({
       default: "",
       select: false, // can be megabytes, only the avatar route loads it
     },
+    // changes with the picture, so cached avatar urls are replaced
+    avatarVersion: { type: Number },
     // set when ProfilePic is a cloudinary url rather than base64
     avatarPublicId: { type: String, select: false },
     isAdmin: {

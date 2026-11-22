@@ -37,7 +37,7 @@ const accessChat = asyncHandler(async (req, res) => {
 
      isChat=await usermodel.populate(isChat,{
         path:"lastmessage.sender",
-        select:"name email"
+        select:"name email avatarVersion"
      })
      if(isChat.length>0) {
         res.send(isChat[0]);
@@ -71,7 +71,7 @@ const fetchChats = asyncHandler(async (req, res) => {
     }))
     data=await usermodel.populate(data,{
         path:"lastmessage.sender",
-        select:"name email"
+        select:"name email avatarVersion"
      })
   
     res.send(data);

@@ -19,7 +19,7 @@ export function UserAvatar({
   size = "md",
   className,
 }: {
-  user?: { _id?: string; name?: string } | null;
+  user?: { _id?: string; name?: string; avatarVersion?: number } | null;
   size?: Size;
   className?: string;
 }) {
