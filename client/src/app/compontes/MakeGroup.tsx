@@ -73,6 +73,10 @@ const MakeGroup = () => {
           );
           setChats([data,...chats])
           setOpen(false)
+          setGroupChatName("")
+          setgroupUsers([])
+          setsearch("")
+          setsearchresults([])
     } catch (error) {
         alert("something went wrong")
     }
