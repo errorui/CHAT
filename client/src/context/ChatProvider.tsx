@@ -34,13 +34,21 @@ const ChatProvider = ({ children }: { children: ReactNode }) => {
       });
       return response.data as User;
     } catch (error) {
-      return null;
+      // only a 401 means signed out, anything else is a temporary failure
+      return axios.isAxiosError(error) && error.response?.status === 401 ? null : undefined;
     }
   };
 
   useEffect(() => {
+    let cancelled = false;
+    let retry: ReturnType<typeof setTimeout>;
     const fetchUser = async () => {
       const res = await getUser();
+      if (cancelled) return;
+      if (res === undefined) {
+        retry = setTimeout(fetchUser, 3000);
+        return;
+      }
       if (!res) {
         console.log("No user");
         console.log(res);
@@ -52,6 +60,10 @@ const ChatProvider = ({ children }: { children: ReactNode }) => {
     };
 
     fetchUser();
+    return () => {
+      cancelled = true;
+      clearTimeout(retry);
+    };
   }, [pathname]);
 
   return (
