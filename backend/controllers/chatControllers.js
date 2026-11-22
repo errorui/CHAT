@@ -10,6 +10,10 @@ const accessChat = asyncHandler(async (req, res) => {
      const {userId}=req.body
     
      requireId(res, userId, "user id");
+     if (req.user._id.equals(userId)) {
+       res.status(400);
+       throw new Error("You cannot chat with yourself");
+     }
      var isChat=await chatModel.find({
         isGroupChat:false,
         $and:[
