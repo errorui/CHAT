@@ -125,7 +125,7 @@ const getAvatar = asyncHandler(async (req, res) => {
 
   // short cache for "no picture", so initials don't cost a request on every render
   res.set("Cache-Control", `private, max-age=${type ? 86400 : 300}`);
-  if (!type) return res.sendStatus(404);
+  if (!type) return res.sendStatus(204);
 
   res.set("X-Content-Type-Options", "nosniff");
   res.type(type).send(image);
