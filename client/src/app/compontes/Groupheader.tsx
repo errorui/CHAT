@@ -40,7 +40,7 @@ function GroupInfo({ info, fetchAgain, setFetchAgain }: GroupInfoProps) {
       return;
     }
     try {
-      const { data } = await axios.get(`/api/user?search=${search}`, { withCredentials: true });
+      const { data } = await axios.get(`/api/user?search=${query}`, { withCredentials: true });
       console.log(data);
       setSearchResults(data);
     } catch (error) {
