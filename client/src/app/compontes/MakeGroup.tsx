@@ -71,7 +71,8 @@ const MakeGroup = () => {
                 withCredentials:true
             }
           );
-          setChats([data,...chats])
+          // the socket refresh may have added it already
+          setChats((list)=>[data,...list.filter((chat)=>chat._id!==data._id)])
           setOpen(false)
           setGroupChatName("")
           setgroupUsers([])
