@@ -20,7 +20,8 @@ export type Chat = {
 
 export type Message = {
   _id: string;
-  sender: User;
+  // null once that account is deleted
+  sender: User | null;
   content: string;
   createdAt: string;
   // only _id can be relied on, how much of the chat is populated differs by endpoint
