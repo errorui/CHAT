@@ -43,10 +43,20 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
   useEffect(() => {
     if (!user) return;
 
-    socket = io(API_URL);
-    socket.emit("setup", user);
-    socket.on('connected', () => {
+    socket = io(API_URL, {
+      // the login cookie belongs to this site, so fetch a short lived ticket for the socket
+      auth: (done) => {
+        axios.get('/api/user/socket-token').then(({ data }) => done(data)).catch(() => done({}));
+      },
+    });
+    const connection = socket;
+    let retry: ReturnType<typeof setTimeout>;
+    socket.on('connect', () => {
       setSocketConnected(true);
+    });
+    socket.on('connect_error', () => {
+      // socket.io doesn't retry by itself when the server refuses the connection
+      if (!connection.active) retry = setTimeout(() => connection.connect(), 5000);
     });
 
     socket.on("typing", () => {
@@ -67,7 +77,8 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
     });
 
     return () => {
-      socket?.disconnect();
+      clearTimeout(retry);
+      connection.disconnect();
     };
   }, [user]);
 

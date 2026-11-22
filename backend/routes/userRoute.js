@@ -7,6 +7,7 @@ const {
 const { protect } = require("../middleware/Authmiddleware");
 const upload = require("../config/multer-config");
 const { clearAuthCookie } = require("../config/authCookie");
+const { generateSocketToken } = require("../config/generateToken");
 const router = express.Router();
 
 // a bad upload is the client's mistake, not a server error
@@ -24,6 +25,9 @@ router.post("/login", authUser);
 
 router.get("/user", protect, (req, res) => {
   res.send(req.user);
+});
+router.get("/socket-token", protect, (req, res) => {
+  res.json({ token: generateSocketToken(req.user._id) });
 });
 router.route("/logout").get((req, res) => {
   clearAuthCookie(res);

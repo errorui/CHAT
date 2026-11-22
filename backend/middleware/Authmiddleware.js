@@ -36,6 +36,12 @@ const protect = asyncHandler(async (req, res, next) => {
       throw new Error("Not authorized, token failed");
     }
 
+    // socket tickets are not login sessions
+    if (decoded.scope) {
+      res.status(401);
+      throw new Error("Not authorized, token failed");
+    }
+
     // outside the try, so a database error is not reported as a bad token
     req.user = await userModel.findById(decoded.id).select("-password");
     if (!req.user) {

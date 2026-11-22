@@ -1,4 +1,5 @@
 const { Server } = require("socket.io");
+const jwt = require("jsonwebtoken");
 
 const createSocketServer = (server, origin) => {
   const io = new Server(server, {
@@ -7,12 +8,20 @@ const createSocketServer = (server, origin) => {
     maxHttpBufferSize: 1e8,
   });
 
+  io.use((socket, next) => {
+    try {
+      const { id, scope } = jwt.verify(socket.handshake.auth?.token, process.env.SECRET);
+      if (scope !== "socket") throw new Error("wrong token type");
+      socket.data.userId = id;
+      next();
+    } catch (error) {
+      next(new Error("unauthorized"));
+    }
+  });
+
   io.on("connection", (socket) => {
-    socket.on("setup", (userData) => {
-      if (typeof userData?._id !== "string") return;
-      socket.join(userData._id);
-      socket.emit("connected");
-    });
+    // the room comes from the verified token, never from what the client says
+    socket.join(socket.data.userId);
 
     socket.on("joinchat", (room) => {
       if (typeof room !== "string") return;

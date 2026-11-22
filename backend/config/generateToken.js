@@ -4,4 +4,10 @@ const generateToken=(id)=>{
         expiresIn:"3d"
     });
 }
-module.exports={generateToken}
+// short lived, and only good for opening a socket
+const generateSocketToken=(id)=>{
+    return jwt.sign({id,scope:"socket"},process.env.SECRET,{
+        expiresIn:"60s"
+    });
+}
+module.exports={generateToken,generateSocketToken}
