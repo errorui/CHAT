@@ -8,6 +8,7 @@ import Groupheader from './Groupheader';
 import ProfileModal from './ProfileModal';
 import { Input } from '@/components/ui/input';
 import axios from 'axios';
+import { useToast } from '@/components/ui/use-toast';
 import {
   Avatar,
   AvatarFallback,
@@ -44,6 +45,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
   const [loadingChats, setLoadingChats] = useState(true); // Add loading state for chats
   const { user, selectedChat, setSelectedChat, notification, setNotification,chats } = useChat();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { toast } = useToast();
   // Real-time connection socket logic
   useEffect(() => {
     if (!user) return;
@@ -145,7 +147,8 @@ const ChatBox = ({ fetchAgain, setFetchAgain }: { fetchAgain: any, setFetchAgain
           setMessages((prevMessages) => appendMessage(prevMessages, data));
         }
       } catch (error) {
-        console.log(error);
+        if (selectedChatcompare?._id === chatId) setNewMessage((current) => current || newMessage);
+        toast({ variant: "destructive", title: "Message not sent", description: "Please try again." });
       }
     }
   };
